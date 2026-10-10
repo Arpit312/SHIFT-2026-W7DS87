@@ -6,6 +6,7 @@ PyJWT>=2.9,<3
 reportlab>=4.2,<5
 Pillow>=10.4,<11
 supabase>=2.7,<3
+google-genai>=1.0.0,<3
 pytest>=8.3,<9
 pytest-django>=4.9,<5
 ruff>=0.6,<1

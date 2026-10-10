@@ -1,132 +1,200 @@
-import random
-import time
-from typing import Dict, Any, List
+"""
+Photo Check service layer.
+
+Two implementations:
+  MockPhotoCheckService   — returns fabricated data for local dev/testing.
+  RealPhotoCheckService   — downloads evidence, strips EXIF, calls Gemini,
+                             maps result through the adapter.
+
+Use get_photo_check_service() to obtain the correct implementation based on
+the PHOTO_CHECK_BACKEND environment variable.
+
+No absolute paths.  No hardcoded keys.  EXIF stripped before sending to Gemini.
+"""
+
+import logging
+import os
+import tempfile
+from io import BytesIO
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+# ── Abstract base ─────────────────────────────────────────────────────────────
 
 class PhotoCheckService:
-    def evaluate(self, evidence_id: str) -> Dict[str, Any]:
-        raise NotImplementedError("This is an abstract method.")
+    def evaluate(self, evidence_list: list[dict[str, Any]]) -> dict[str, Any]:
+        raise NotImplementedError
 
+
+# ── Mock implementation ───────────────────────────────────────────────────────
 
 class MockPhotoCheckService(PhotoCheckService):
-    def evaluate(self, evidence_id: str) -> Dict[str, Any]:
-        time.sleep(1)
-        random.seed(str(evidence_id))
+    """Returns deterministic mock data.  is_demo=True always.  No network calls."""
+
+    def evaluate(self, evidence_list: list[dict[str, Any]]) -> dict[str, Any]:
+        import random
+        import time
+
+        time.sleep(0.2)
+        random.seed(str(sorted(e.get("category", "") for e in evidence_list)))
         score = random.randint(1, 100)
-        
+
         if score > 80:
-            status = 'pass'
-            feedback = 'Looks good.'
+            verdict = "yes"
+            finding_severity = "minor"
+            explanation = "No visible rejection-level issue found. Electrician must verify on site."
         elif score > 40:
-            status = 'needs_review'
-            feedback = 'Image is unclear, please review manually.'
+            verdict = "needs_review"
+            finding_severity = "major"
+            explanation = "Image quality or visible condition requires manual review."
         else:
-            status = 'fail'
-            feedback = 'Clearly violates the criteria.'
-            
+            verdict = "electrician_first"
+            finding_severity = "critical"
+            explanation = "A potential visible hazard was detected. Electrician inspection required before proceeding."
+
         return {
-            'overall_verdict': status,
-            'overall_confidence': score / 100.0,
-            'readings': {},
-            'findings': [{'observation': feedback, 'severity': 'high' if status == 'fail' else 'low'}],
-            'missing_information': [],
-            'suggested_conditions': [],
-            'requires_human_review': status == 'needs_review',
-            'limitations': [],
-            'is_demo': True,
-            'service_name': 'mock',
-            'model_version': '1.0',
-            'guard_adjustments': [],
-            'raw_response': {}
+            "overall_verdict": verdict,
+            "overall_confidence": None,
+            "readings": {},
+            "findings": [
+                {
+                    "finding_id": "mock-finding-001",
+                    "title": "Mock Finding",
+                    "severity": finding_severity,
+                    "explanation": explanation,
+                    "confidence": score / 100.0,
+                    "source_photo_id": None,
+                    "evidence_region": None,
+                    "recommended_action": "This is mock data. No real action required.",
+                    "requires_electrician": True,
+                    "status": "unresolved",
+                    "analyzer": "mock",
+                }
+            ],
+            "missing_information": [],
+            "suggested_conditions": [],
+            "requires_human_review": verdict == "needs_review",
+            "limitations": [
+                "This is mock data generated for development/testing. "
+                "It does not reflect a real photo analysis."
+            ],
+            "is_demo": True,
+            "service_name": "mock",
+            "model_version": "mock-1.0",
+            "guard_adjustments": [],
+            "raw_response": {},
         }
 
 
+# ── Real implementation ───────────────────────────────────────────────────────
+
 class RealPhotoCheckService(PhotoCheckService):
-    def evaluate(self, evidence_list: List[Dict[str, Any]]) -> Dict[str, Any]:
-        from .chargenoc_ai.vision_screening import screen_group
-        from .chargenoc_ai.hardware_rules import recommend_hardware
-        import tempfile
-        import os
-        import requests
-        
-        # evidence_list contains dictionaries with {'url': ..., 'category': ...}
-        
-        # Download images to temporary files
-        temp_files = []
-        image_paths = []
+    """Downloads evidence from URLs, strips EXIF, calls Gemini vision, adapts result."""
+
+    def evaluate(self, evidence_list: list[dict[str, Any]]) -> dict[str, Any]:
+        from assessments.services.chargenoc_ai.vision_screening import screen_group
+        from assessments.services.chargenoc_ai.adapter import adapt_screening_to_assessment
+
+        temp_files: list[str] = []
+        image_paths: list[str] = []
+        evidence_ids: list[str] = []
+
         try:
             for ev in evidence_list:
-                url = ev['url']
-                resp = requests.get(url)
-                resp.raise_for_status()
-                
-                # Create a temp file
-                ext = '.jpg' # Assume jpg if we can't guess, or try to get from url
-                if '.png' in url.lower(): ext = '.png'
-                elif '.webp' in url.lower(): ext = '.webp'
-                
+                url = ev.get("url")
+                evidence_id = ev.get("evidence_id", "")
+                if not url:
+                    logger.warning("Evidence entry has no URL, skipping: %s", ev)
+                    continue
+
+                ext = _ext_from_url(url)
+                raw_bytes = _fetch_image(url)
+                stripped_bytes = _strip_exif(raw_bytes, ext)
+
                 fd, path = tempfile.mkstemp(suffix=ext)
-                with os.fdopen(fd, 'wb') as f:
-                    f.write(resp.content)
+                try:
+                    with os.fdopen(fd, "wb") as f:
+                        f.write(stripped_bytes)
+                except Exception:
+                    os.close(fd)
+                    raise
                 temp_files.append(path)
                 image_paths.append(path)
-            
-            # Call AI
+                evidence_ids.append(evidence_id)
+
+            if not image_paths:
+                raise ValueError("No readable evidence images found for this request.")
+
             screening = screen_group(image_paths)
-            hardware = recommend_hardware(screening['group'], charger_power_kw=7.0, charger_type="AC")
-            
-            group = screening['group']
-            
-            # Map outputs
-            status_map = {
-                "CONTINUE_TO_ELECTRICIAN": "pass",
-                "MANUAL_REVIEW": "needs_review",
-                "CORRECTION_REQUIRED": "fail",
-                "RETAKE_PHOTO": "needs_review"
+            group = screening["group"]
+            images = screening["images"]
+
+            result = adapt_screening_to_assessment(group, images, evidence_ids)
+            result["raw_response"] = {
+                "group_status": group.get("group_status"),
+                "image_count": group.get("image_count"),
+                "image_statuses": group.get("image_statuses"),
+                "model_versions": group.get("model_versions"),
+                # Hazards and limitations are stored in findings/limitations fields.
+                # Full raw response is not returned to EV owners.
             }
-            
-            overall_verdict = status_map.get(group['group_status'], "needs_review")
-            requires_human_review = group['group_status'] in ("MANUAL_REVIEW", "RETAKE_PHOTO")
-            
-            # Extract findings
-            findings = []
-            for h in group['hazards']:
-                findings.append({
-                    'observation': h['evidence'],
-                    'severity': h['severity']
-                })
-                
-            # Guard conditions
-            guard_adjustments = []
-            if overall_verdict == "pass" and any(f['severity'] in ('high', 'medium') for f in findings):
-                overall_verdict = "fail"
-                requires_human_review = True
-                guard_adjustments.append("Downgraded to fail due to critical hazard.")
-                
-            return {
-                'overall_verdict': overall_verdict,
-                'overall_confidence': None, # Model doesn't provide overall confidence
-                'readings': {},
-                'findings': findings,
-                'missing_information': [],
-                'suggested_conditions': hardware['hardware_items'],
-                'requires_human_review': requires_human_review,
-                'limitations': group['limitations'],
-                'is_demo': False,
-                'service_name': 'google-genai',
-                'model_version': os.getenv("GEMINI_MODEL", "unknown"),
-                'guard_adjustments': guard_adjustments,
-                'raw_response': screening
-            }
-            
+            return result
+
         finally:
             for path in temp_files:
-                if os.path.exists(path):
-                    os.remove(path)
+                try:
+                    if os.path.exists(path):
+                        os.remove(path)
+                except OSError:
+                    pass
 
 
-def get_photo_check_service():
-    import os
-    backend = os.getenv("PHOTO_CHECK_BACKEND", "mock")
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def _ext_from_url(url: str) -> str:
+    url_lower = url.lower().split("?")[0]
+    for ext in (".png", ".webp", ".jpeg", ".jpg"):
+        if url_lower.endswith(ext):
+            return ext
+    return ".jpg"
+
+
+def _fetch_image(url: str) -> bytes:
+    import requests  # already in django ecosystem via supabase
+
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.content
+
+
+def _strip_exif(image_bytes: bytes, ext: str) -> bytes:
+    """Strip EXIF metadata using Pillow before sending to a cloud provider.
+    Returns the cleaned image bytes.  Falls back to original bytes if Pillow
+    cannot process the image (e.g. already stripped or unsupported format).
+    Privacy: removes GPS, device model, and any other EXIF tags.
+    """
+    try:
+        from PIL import Image
+
+        bio = BytesIO(image_bytes)
+        img = Image.open(bio)
+        # Re-save without EXIF
+        out = BytesIO()
+        fmt = {".png": "PNG", ".webp": "WEBP"}.get(ext.lower(), "JPEG")
+        # Pillow saves without EXIF when exif= kwarg is omitted
+        img.save(out, format=fmt)
+        return out.getvalue()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("EXIF stripping failed (%s), sending original bytes.", exc)
+        return image_bytes
+
+
+# ── Factory ───────────────────────────────────────────────────────────────────
+
+def get_photo_check_service() -> PhotoCheckService:
+    backend = os.getenv("PHOTO_CHECK_BACKEND", "mock").strip().lower()
     if backend == "real":
         return RealPhotoCheckService()
     return MockPhotoCheckService()

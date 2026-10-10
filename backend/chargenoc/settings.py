@@ -16,7 +16,11 @@ PHOTO_CHECK_BACKEND = env('PHOTO_CHECK_BACKEND', default='mock')
 
 # ChargeSathi chatbot. GEMINI_API_KEY is shared with Photo Check; CHATBOT_MODEL is not.
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
-CHATBOT_MODEL = env('CHATBOT_MODEL', default='gemini-3.8-flash')
+GEMINI_MODELS = env('GEMINI_MODELS', default='gemini-2.5-flash,gemini-2.0-flash,gemini-1.5-flash')
+GEMINI_MODEL = env('GEMINI_MODEL', default='')  # legacy single-model fallback
+GEMINI_TIMEOUT_SECONDS = env.int('GEMINI_TIMEOUT_SECONDS', default=30)
+GEMINI_MAX_RETRIES_PER_MODEL = env.int('GEMINI_MAX_RETRIES_PER_MODEL', default=2)
+CHATBOT_MODEL = env('CHATBOT_MODEL', default='gemini-2.0-flash')
 CHATBOT_TIMEOUT_SECONDS = env.int('CHATBOT_TIMEOUT_SECONDS', default=25)
 CHATBOT_RATE_LIMIT_PER_MINUTE = env.int('CHATBOT_RATE_LIMIT_PER_MINUTE', default=20)
 CHATBOT_MAX_OUTPUT_TOKENS = env.int('CHATBOT_MAX_OUTPUT_TOKENS', default=1024)
