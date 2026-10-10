@@ -11,25 +11,15 @@ import { formatDateTime } from '@/lib/utils';
 import { FilePlus, ArrowRight, ShieldCheck, Download, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { DemoDataBanner } from '@/components/ui/demo-data-banner';
+import { Suspense } from 'react';
+import { RoleGuard } from '@/components/layout/role-guard';
+import { ROLES } from '@/lib/constants';
 
-export default function OwnerOverviewPage() {
+function OwnerOverviewPageInner() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['owner-overview'],
     queryFn: () => api.getOwnerOverview(),
   });
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold font-heading">Dashboard Overview</h1>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -40,23 +30,22 @@ export default function OwnerOverviewPage() {
     );
   }
 
-  if (!data) return null;
-
-  const activeRequest = data.active_requests?.[0];
+  const activeRequest = data?.active_requests?.[0];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold font-heading text-text-primary">Dashboard Overview</h1>
-        {!activeRequest && (
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-2xl font-bold font-heading text-text-primary">Dashboard Overview</h1>
+          <p className="text-text-muted mt-1">Welcome back. Here is the status of your charging request.</p>
+        </div>
+        {(!isLoading && !activeRequest) && (
           <Link href="/dashboard/owner/new-request">
             <Button icon={<FilePlus className="w-4 h-4" />}>New Request</Button>
           </Link>
         )}
       </div>
 
-      {/* Demo Banner if needed based on API, but let's assume standard banner for slots/bills later */}
-      
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Status Card */}
         <Card className="lg:col-span-2">
@@ -65,7 +54,9 @@ export default function OwnerOverviewPage() {
             <CardDescription>Status of your active EV charging application</CardDescription>
           </CardHeader>
           <CardContent>
-            {activeRequest ? (
+            {isLoading ? (
+              <Skeleton className="h-40 w-full" />
+            ) : activeRequest ? (
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 bg-elevated rounded-lg border border-cn-border">
                   <div>
@@ -108,10 +99,12 @@ export default function OwnerOverviewPage() {
             <CardTitle>Action Items</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.pending_conditions_count > 0 ? (
+            {isLoading ? (
+              <Skeleton className="h-24 w-full" />
+            ) : (data?.pending_conditions_count ?? 0) > 0 ? (
               <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
                 <p className="font-medium text-warning mb-2">
-                  {data.pending_conditions_count} Action(s) Required
+                  {data?.pending_conditions_count} Action(s) Required
                 </p>
                 <p className="text-sm text-warning/80 mb-4">
                   You have pending conditions to resolve before your request can proceed.
@@ -123,7 +116,7 @@ export default function OwnerOverviewPage() {
             ) : (
               <div className="text-center py-6 text-text-muted">
                 <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">You&apos;re all caught up!</p>
+                <p className="text-sm">You're all caught up!</p>
               </div>
             )}
           </CardContent>
@@ -140,7 +133,9 @@ export default function OwnerOverviewPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {data.next_slot ? (
+            {isLoading ? (
+               <Skeleton className="h-16 w-full" />
+            ) : data?.next_slot ? (
               <div>
                 <p className="text-sm text-text-muted mb-1">Date & Time</p>
                 <p className="font-medium mb-3">{formatDateTime(`${data.next_slot.date}T${data.next_slot.start_time}`)}</p>
@@ -165,7 +160,9 @@ export default function OwnerOverviewPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {data.latest_invoice ? (
+            {isLoading ? (
+               <Skeleton className="h-16 w-full" />
+            ) : data?.latest_invoice ? (
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm text-text-muted">Amount</p>
@@ -209,12 +206,14 @@ export default function OwnerOverviewPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {data.recent_activity?.length > 0 ? (
+          {isLoading ? (
+             <Skeleton className="h-20 w-full" />
+          ) : (data?.recent_activity?.length ?? 0) > 0 ? (
             <div className="space-y-4">
-              {data.recent_activity.map((event) => (
+              {data?.recent_activity?.map((event: any) => (
                 <div key={event.id} className="flex gap-4 text-sm">
                   <div className="w-32 shrink-0 text-text-muted">
-                    {formatDateTime(event.created_at).split(', ')[0]}
+                    {formatDateTime(event.created_at).split(", ")[0]}
                   </div>
                   <div>
                     <span className="font-medium text-text-primary mr-2">{event.actor_name}</span>
@@ -229,5 +228,15 @@ export default function OwnerOverviewPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function OwnerOverviewPage() {
+  return (
+    <RoleGuard allowedRoles={[ROLES.EV_OWNER]}>
+      <Suspense fallback={<Skeleton className="h-[600px] w-full" />}>
+        <OwnerOverviewPageInner />
+      </Suspense>
+    </RoleGuard>
   );
 }

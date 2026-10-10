@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stepper } from '@/components/ui/stepper';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -13,10 +13,12 @@ import { api } from '@/lib/api-client';
 import { EVIDENCE_CATEGORIES, PHOTO_SLOT_GUIDANCE } from '@/lib/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { RoleGuard } from '@/components/layout/role-guard';
+import { ROLES } from '@/lib/constants';
 
 const STEPS = ['Vehicle Details', 'Photo Evidence', 'Site Questionnaire', 'Review & Submit'];
 
-export default function NewRequestWizard() {
+function NewRequestWizardInner() {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -270,5 +272,15 @@ export default function NewRequestWizard() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function NewRequestWizard() {
+  return (
+    <RoleGuard allowedRoles={[ROLES.EV_OWNER]}>
+      <Suspense fallback={<div className="space-y-8"><div className="h-8 bg-elevated rounded animate-pulse" /><div className="h-96 bg-elevated rounded animate-pulse" /></div>}>
+        <NewRequestWizardInner />
+      </Suspense>
+    </RoleGuard>
   );
 }
