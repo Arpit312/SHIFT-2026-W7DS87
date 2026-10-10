@@ -64,11 +64,13 @@ playwright-report/
 test-results/
 coverage/
 
-# Documentation (keep ChargeSathi integration docs tracked)
+# Documentation (keep ChargeSathi and parking-analyzer docs tracked)
 docs/*
 !docs/CHATBOT_ANALYSIS.md
 !docs/CHATBOT_INTEGRATION_REPORT.md
 !docs/LOCAL_SETUP.md
 !docs/chatbot-verification/
 !docs/chatbot-verification/**
+!docs/PARKING_ANALYZER_ANALYSIS.md
+!docs/PARKING_ANALYZER_REPORT.md
 
