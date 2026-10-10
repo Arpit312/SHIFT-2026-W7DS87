@@ -14,6 +14,16 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-dummy-key')
 DEBUG = env('DEBUG', default=True)
 PHOTO_CHECK_BACKEND = env('PHOTO_CHECK_BACKEND', default='mock')
 
+# ChargeSathi chatbot. GEMINI_API_KEY is shared with Photo Check; CHATBOT_MODEL is not.
+GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+CHATBOT_MODEL = env('CHATBOT_MODEL', default='gemini-3.8-flash')
+CHATBOT_TIMEOUT_SECONDS = env.int('CHATBOT_TIMEOUT_SECONDS', default=25)
+CHATBOT_RATE_LIMIT_PER_MINUTE = env.int('CHATBOT_RATE_LIMIT_PER_MINUTE', default=20)
+CHATBOT_MAX_OUTPUT_TOKENS = env.int('CHATBOT_MAX_OUTPUT_TOKENS', default=1024)
+CHATBOT_MAX_MESSAGE_CHARS = env.int('CHATBOT_MAX_MESSAGE_CHARS', default=2000)
+CHATBOT_MAX_HISTORY_TURNS = env.int('CHATBOT_MAX_HISTORY_TURNS', default=12)
+CHATBOT_THINKING_BUDGET = env.int('CHATBOT_THINKING_BUDGET', default=0)
+
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
@@ -38,6 +48,7 @@ INSTALLED_APPS = [
     'billing',
     'packets',
     'activity',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
@@ -98,3 +109,10 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'chargenoc-default',
+    }
+}

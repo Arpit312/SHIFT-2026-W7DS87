@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import MeView, MeVehiclesView, MeOverviewView, MeDeletionRequestView
+from chatbot.views import ChatView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/chat/', ChatView.as_view()),
     path('api/v1/me/', MeView.as_view()),
     path('api/v1/me/vehicles/', MeVehiclesView.as_view()),
     path('api/v1/me/overview/', MeOverviewView.as_view()),
