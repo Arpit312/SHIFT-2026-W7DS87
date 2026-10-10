@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import re
 import urllib.error
@@ -159,40 +160,51 @@ def call_gemini(message, history):
         'https://generativelanguage.googleapis.com/v1beta/models/'
         f'{quote(model, safe="")}:generateContent'
     )
-    request = urllib.request.Request(
-        url,
-        data=body,
-        method='POST',
-        headers={
-            'Content-Type': 'application/json',
-            'x-goog-api-key': api_key,
-        },
-    )
 
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            raw = response.read()
-    except urllib.error.HTTPError as exc:
-        # Do not log response bodies or prompts (they may contain user text).
-        logger.warning('chatbot provider HTTP error status=%s', exc.code)
-        if exc.code == 429:
+
+
+    max_retries = 3
+    raw = None
+    for attempt in range(max_retries + 1):
+        try:
+            # Re-create the request object on each attempt since urlopen consumes it.
+            req = urllib.request.Request(
+                url,
+                data=body,
+                method='POST',
+                headers={
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': api_key,
+                },
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                raw = response.read()
+            break  # success
+        except urllib.error.HTTPError as exc:
+            logger.warning('chatbot provider HTTP error status=%s', exc.code)
+            if exc.code == 429:
+                if attempt < max_retries:
+                    wait = 2 ** (attempt + 1)  # 2s, 4s, 8s
+                    logger.info('Gemini 429, retry %d/%d after %ds', attempt + 1, max_retries, wait)
+                    time.sleep(wait)
+                    continue
+                raise ChatbotError(
+                    'The language service is busy. Try again in a minute.',
+                    'rate_limited',
+                    429,
+                ) from exc
             raise ChatbotError(
-                'The language service is busy. Try again in a minute.',
-                'rate_limited',
-                429,
+                'ChargeSathi could not get an answer. Try again.',
+                'provider_error',
+                502,
             ) from exc
-        raise ChatbotError(
-            'ChargeSathi could not get an answer. Try again.',
-            'provider_error',
-            502,
-        ) from exc
-    except Exception:
-        logger.warning('chatbot provider connection error')
-        raise ChatbotError(
-            'ChargeSathi could not reach the language service. Try again.',
-            'provider_error',
-            502,
-        )
+        except Exception:
+            logger.warning('chatbot provider connection error')
+            raise ChatbotError(
+                'ChargeSathi could not reach the language service. Try again.',
+                'provider_error',
+                502,
+            )
 
     try:
         data = json.loads(raw.decode('utf-8'))
