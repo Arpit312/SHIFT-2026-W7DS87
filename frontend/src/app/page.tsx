@@ -43,10 +43,10 @@ export default function LandingPage() {
               For Indian Apartment Societies
             </div>
             
-            <h1 className="mx-auto max-w-4xl font-heading text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-7xl mb-6">
-              EV Charging Permission, <br/>
+            <h1 className="mx-auto max-w-4xl font-heading text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-7xl mb-6 text-balance">
+              Give Your RWA a Reason <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-gold">
-                Simplified & Documented.
+                to Say Yes.
               </span>
             </h1>
             
