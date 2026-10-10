@@ -45,3 +45,27 @@ backend/staticfiles/
 # Misc
 *.log
 *.pid
+# Tests
+test_*.py
+*_test.py
+conftest.py
+tests/
+__tests__/
+pytest.ini
+.pytest_cache/
+htmlcov/
+.coverage
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+e2e/
+playwright-report/
+test-results/
+coverage/
+
+# AI documentation
+docs/AI_BRANCH_ANALYSIS.md
+docs/AI_INTEGRATION.md
+docs/AI_INTEGRATION_REPORT.md
+docs/ai-verification/
