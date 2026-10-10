@@ -1,0 +1,512 @@
+{
+  "description": "15 evaluation sets (3 photos each). Replace folders' contents with real photos using the listed names; run: python run_eval.py",
+  "sets": [
+    {
+      "set_id": "set_01",
+      "title": "Clean dry garage wall",
+      "expected_group_status": "CONTINUE_TO_ELECTRICIAN",
+      "why": "Dry plain wall, empty floor, free walkway.",
+      "images": [
+        {
+          "file": "set_01/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Whole garage bay, wall visible, nothing stored near it."
+        },
+        {
+          "file": "set_01/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Plain dry wall at proposed mount height, no cracks/stains."
+        },
+        {
+          "file": "set_01/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Floor clear and dry between wall and parking spot."
+        }
+      ]
+    },
+    {
+      "set_id": "set_02",
+      "title": "Covered outdoor parking bay",
+      "expected_group_status": "CONTINUE_TO_ELECTRICIAN",
+      "why": "Sheltered bay, no pedestrian route crossed.",
+      "images": [
+        {
+          "file": "set_02/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Covered bay with roof overhead."
+        },
+        {
+          "file": "set_02/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Wall/pillar surface, dry, no peeling paint or mould."
+        },
+        {
+          "file": "set_02/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Cable route to car along wall edge, not across a path."
+        }
+      ]
+    },
+    {
+      "set_id": "set_03",
+      "title": "Society basement pillar",
+      "expected_group_status": "CONTINUE_TO_ELECTRICIAN",
+      "why": "Basement pillar, ample clearance, tidy.",
+      "images": [
+        {
+          "file": "set_03/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Basement bay, good lighting, pillar in view."
+        },
+        {
+          "file": "set_03/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Pillar face at mount height, dry, no wires visible."
+        },
+        {
+          "file": "set_03/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Aisle in front is wide and clear."
+        }
+      ]
+    },
+    {
+      "set_id": "set_04",
+      "title": "Home driveway side wall",
+      "expected_group_status": "CONTINUE_TO_ELECTRICIAN",
+      "why": "Sheltered side wall, tidy, nothing combustible.",
+      "images": [
+        {
+          "file": "set_04/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Driveway with car parked, side wall visible."
+        },
+        {
+          "file": "set_04/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Brick/plaster wall, dry, no hanging wires."
+        },
+        {
+          "file": "set_04/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Short straight route to charge port, nothing on floor."
+        }
+      ]
+    },
+    {
+      "set_id": "set_05",
+      "title": "Water seepage on wall",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Wet wall and puddle at the mount point.",
+      "images": [
+        {
+          "file": "set_05/01_wide_area.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "water_or_dampness"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Dark damp patches running down the wall."
+        },
+        {
+          "file": "set_05/02_mount_point_closeup.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "water_or_dampness"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Wall at mount point visibly wet / efflorescence."
+        },
+        {
+          "file": "set_05/03_floor_and_approach.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "water_or_dampness"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Standing water on floor under mount point."
+        }
+      ]
+    },
+    {
+      "set_id": "set_06",
+      "title": "Exposed and taped-over wires",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Bare or taped-over wires visible near mount point.",
+      "images": [
+        {
+          "file": "set_06/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Wide shot of wall; hazard is not obvious from here."
+        },
+        {
+          "file": "set_06/02_mount_point_closeup.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "exposed_or_damaged_wiring"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Loose bare wires / insulation-tape joints hanging from wall."
+        },
+        {
+          "file": "set_06/03_floor_and_approach.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "exposed_or_damaged_wiring"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Frayed cable run along the floor edge."
+        }
+      ]
+    },
+    {
+      "set_id": "set_07",
+      "title": "Fuel cans and cardboard stacked",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Combustibles stored right next to the install point.",
+      "images": [
+        {
+          "file": "set_07/01_wide_area.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "combustibles_or_fire_hazard"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Petrol cans and LPG cylinder beside the wall."
+        },
+        {
+          "file": "set_07/02_mount_point_closeup.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "combustibles_or_fire_hazard"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Stacked cardboard/paper against the mount wall."
+        },
+        {
+          "file": "set_07/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Floor and approach otherwise clear."
+        }
+      ]
+    },
+    {
+      "set_id": "set_08",
+      "title": "Cable would cross walkway",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Only possible cable route runs across a pedestrian path/steps.",
+      "images": [
+        {
+          "file": "set_08/01_wide_area.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "pedestrian_or_cable_obstruction"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Charger wall is across a shared footpath."
+        },
+        {
+          "file": "set_08/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Wall surface itself is fine."
+        },
+        {
+          "file": "set_08/03_floor_and_approach.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "pedestrian_or_cable_obstruction"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Stairs/walkway between wall and parking spot, people walking."
+        }
+      ]
+    },
+    {
+      "set_id": "set_09",
+      "title": "Cramped utility cupboard",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "No working clearance, cannot be reached for servicing.",
+      "images": [
+        {
+          "file": "set_09/01_wide_area.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "cramped_or_inaccessible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Narrow cupboard crammed with items, mount point deep inside."
+        },
+        {
+          "file": "set_09/02_mount_point_closeup.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "cramped_or_inaccessible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Mount point blocked by shelves/boxes."
+        },
+        {
+          "file": "set_09/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Door and corridor view."
+        }
+      ]
+    },
+    {
+      "set_id": "set_10",
+      "title": "Burnt / damaged electrical point",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Visible burn marks or damaged socket/panel.",
+      "images": [
+        {
+          "file": "set_10/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Wide shot of room."
+        },
+        {
+          "file": "set_10/02_mount_point_closeup.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "visible_electrical_hazard"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Blackened socket / burn marks on wall plate."
+        },
+        {
+          "file": "set_10/03_floor_and_approach.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "visible_electrical_hazard"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Broken or open distribution board cover with exposed parts."
+        }
+      ]
+    },
+    {
+      "set_id": "set_11",
+      "title": "Blurry photos",
+      "expected_group_status": "RETAKE_PHOTO",
+      "why": "Every photo is too blurry to judge.",
+      "images": [
+        {
+          "file": "set_11/01_wide_area.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "blurry",
+          "shot_description": "Motion-blurred wide shot."
+        },
+        {
+          "file": "set_11/02_mount_point_closeup.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "blurry",
+          "shot_description": "Out-of-focus wall."
+        },
+        {
+          "file": "set_11/03_floor_and_approach.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "blurry",
+          "shot_description": "Blurry floor shot."
+        }
+      ]
+    },
+    {
+      "set_id": "set_12",
+      "title": "Too dark photos",
+      "expected_group_status": "RETAKE_PHOTO",
+      "why": "No light; wall and floor cannot be seen.",
+      "images": [
+        {
+          "file": "set_12/01_wide_area.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "dark",
+          "shot_description": "Night photo, no flash."
+        },
+        {
+          "file": "set_12/02_mount_point_closeup.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "dark",
+          "shot_description": "Underexposed wall."
+        },
+        {
+          "file": "set_12/03_floor_and_approach.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "dark",
+          "shot_description": "Black floor area."
+        }
+      ]
+    },
+    {
+      "set_id": "set_13",
+      "title": "Wrong / blocked photos",
+      "expected_group_status": "RETAKE_PHOTO",
+      "why": "Not the install area or lens/finger/car blocks the view.",
+      "images": [
+        {
+          "file": "set_13/01_wide_area.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "irrelevant",
+          "shot_description": "Selfie / car interior / screenshot."
+        },
+        {
+          "file": "set_13/02_mount_point_closeup.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "obstructed",
+          "shot_description": "Finger over the lens."
+        },
+        {
+          "file": "set_13/03_floor_and_approach.jpg",
+          "expected_status": "RETAKE_PHOTO",
+          "expected_hazards": [],
+          "expected_image_quality": "obstructed",
+          "shot_description": "Parked car fills the whole frame, wall not visible."
+        }
+      ]
+    },
+    {
+      "set_id": "set_14",
+      "title": "Glare / partial view",
+      "expected_group_status": "MANUAL_REVIEW",
+      "why": "Ambiguous: strong glare and a partly hidden wall, human must judge.",
+      "images": [
+        {
+          "file": "set_14/01_wide_area.jpg",
+          "expected_status": "MANUAL_REVIEW",
+          "expected_hazards": [
+            "uncertain"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Strong glare/reflection hides the lower wall."
+        },
+        {
+          "file": "set_14/02_mount_point_closeup.jpg",
+          "expected_status": "MANUAL_REVIEW",
+          "expected_hazards": [
+            "uncertain"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Unidentifiable dark patch - shadow or damp?"
+        },
+        {
+          "file": "set_14/03_floor_and_approach.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Floor looks clear."
+        }
+      ]
+    },
+    {
+      "set_id": "set_15",
+      "title": "Mixed group: 2 clean, 1 hazard",
+      "expected_group_status": "CORRECTION_REQUIRED",
+      "why": "Aggregation test: one bad photo rejects the whole site.",
+      "images": [
+        {
+          "file": "set_15/01_wide_area.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Clean wide shot."
+        },
+        {
+          "file": "set_15/02_mount_point_closeup.jpg",
+          "expected_status": "CONTINUE_TO_ELECTRICIAN",
+          "expected_hazards": [
+            "none_visible"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Clean mount point."
+        },
+        {
+          "file": "set_15/03_floor_and_approach.jpg",
+          "expected_status": "CORRECTION_REQUIRED",
+          "expected_hazards": [
+            "water_or_dampness"
+          ],
+          "expected_image_quality": "usable",
+          "shot_description": "Leaking pipe / puddle seen from the approach side."
+        }
+      ]
+    }
+  ]
+}

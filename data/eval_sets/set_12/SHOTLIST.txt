@@ -1,0 +1,8 @@
+set_12: Too dark photos
+Expected group decision: RETAKE_PHOTO
+Why: No light; wall and floor cannot be seen.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Night photo, no flash.  -> RETAKE_PHOTO []
+  02_mount_point_closeup.jpg: Underexposed wall.  -> RETAKE_PHOTO []
+  03_floor_and_approach.jpg: Black floor area.  -> RETAKE_PHOTO []

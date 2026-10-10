@@ -1,0 +1,46 @@
+image_id,site_id,image_quality,water_or_dampness,exposed_or_damaged_wiring,combustibles_or_fire_hazard,pedestrian_or_cable_obstruction,cramped_or_inaccessible,visible_electrical_hazard,none_visible,uncertain,reviewer_id,review_date,notes
+set_01_01_wide_area,set_01,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Whole garage bay, wall visible, nothing stored near it."
+set_01_02_mount_point_closeup,set_01,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Plain dry wall at proposed mount height, no cracks/stains."
+set_01_03_floor_and_approach,set_01,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Floor clear and dry between wall and parking spot.
+set_02_01_wide_area,set_02,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Covered bay with roof overhead.
+set_02_02_mount_point_closeup,set_02,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Wall/pillar surface, dry, no peeling paint or mould."
+set_02_03_floor_and_approach,set_02,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Cable route to car along wall edge, not across a path."
+set_03_01_wide_area,set_03,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Basement bay, good lighting, pillar in view."
+set_03_02_mount_point_closeup,set_03,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Pillar face at mount height, dry, no wires visible."
+set_03_03_floor_and_approach,set_03,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Aisle in front is wide and clear.
+set_04_01_wide_area,set_04,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Driveway with car parked, side wall visible."
+set_04_02_mount_point_closeup,set_04,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Brick/plaster wall, dry, no hanging wires."
+set_04_03_floor_and_approach,set_04,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Short straight route to charge port, nothing on floor."
+set_05_01_wide_area,set_05,usable,1,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Dark damp patches running down the wall.
+set_05_02_mount_point_closeup,set_05,usable,1,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Wall at mount point visibly wet / efflorescence.
+set_05_03_floor_and_approach,set_05,usable,1,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Standing water on floor under mount point.
+set_06_01_wide_area,set_06,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Wide shot of wall; hazard is not obvious from here.
+set_06_02_mount_point_closeup,set_06,usable,0,1,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Loose bare wires / insulation-tape joints hanging from wall.
+set_06_03_floor_and_approach,set_06,usable,0,1,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Frayed cable run along the floor edge.
+set_07_01_wide_area,set_07,usable,0,0,1,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Petrol cans and LPG cylinder beside the wall.
+set_07_02_mount_point_closeup,set_07,usable,0,0,1,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Stacked cardboard/paper against the mount wall.
+set_07_03_floor_and_approach,set_07,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Floor and approach otherwise clear.
+set_08_01_wide_area,set_08,usable,0,0,0,1,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Charger wall is across a shared footpath.
+set_08_02_mount_point_closeup,set_08,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Wall surface itself is fine.
+set_08_03_floor_and_approach,set_08,usable,0,0,0,1,0,0,0,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Stairs/walkway between wall and parking spot, people walking."
+set_09_01_wide_area,set_09,usable,0,0,0,0,1,0,0,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Narrow cupboard crammed with items, mount point deep inside."
+set_09_02_mount_point_closeup,set_09,usable,0,0,0,0,1,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Mount point blocked by shelves/boxes.
+set_09_03_floor_and_approach,set_09,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Door and corridor view.
+set_10_01_wide_area,set_10,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Wide shot of room.
+set_10_02_mount_point_closeup,set_10,usable,0,0,0,0,0,1,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Blackened socket / burn marks on wall plate.
+set_10_03_floor_and_approach,set_10,usable,0,0,0,0,0,1,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Broken or open distribution board cover with exposed parts.
+set_11_01_wide_area,set_11,blurry,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Motion-blurred wide shot.
+set_11_02_mount_point_closeup,set_11,blurry,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Out-of-focus wall.
+set_11_03_floor_and_approach,set_11,blurry,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Blurry floor shot.
+set_12_01_wide_area,set_12,dark,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Night photo, no flash."
+set_12_02_mount_point_closeup,set_12,dark,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Underexposed wall.
+set_12_03_floor_and_approach,set_12,dark,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Black floor area.
+set_13_01_wide_area,set_13,irrelevant,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Selfie / car interior / screenshot.
+set_13_02_mount_point_closeup,set_13,obstructed,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Finger over the lens.
+set_13_03_floor_and_approach,set_13,obstructed,0,0,0,0,0,0,0,0,scenario_design,2026-10-10,"Designed expected label (not expert-reviewed): Parked car fills the whole frame, wall not visible."
+set_14_01_wide_area,set_14,usable,0,0,0,0,0,0,0,1,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Strong glare/reflection hides the lower wall.
+set_14_02_mount_point_closeup,set_14,usable,0,0,0,0,0,0,0,1,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Unidentifiable dark patch - shadow or damp?
+set_14_03_floor_and_approach,set_14,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Floor looks clear.
+set_15_01_wide_area,set_15,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Clean wide shot.
+set_15_02_mount_point_closeup,set_15,usable,0,0,0,0,0,0,1,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Clean mount point.
+set_15_03_floor_and_approach,set_15,usable,1,0,0,0,0,0,0,0,scenario_design,2026-10-10,Designed expected label (not expert-reviewed): Leaking pipe / puddle seen from the approach side.
