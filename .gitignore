@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+.env.local
+.env.*.local
+frontend/.env.local
+backend/.env
+
+# Build
+frontend/.next/
+frontend/out/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+htmlcov/
+.pytest_cache/
+.coverage
+
+# Django
+*.sqlite3
+db.sqlite3
+backend/media/
+backend/staticfiles/
+
+# Misc
+*.log
+*.pid
