@@ -1,0 +1,8 @@
+set_14: Glare / partial view
+Expected group decision: MANUAL_REVIEW
+Why: Ambiguous: strong glare and a partly hidden wall, human must judge.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Strong glare/reflection hides the lower wall.  -> MANUAL_REVIEW ['uncertain']
+  02_mount_point_closeup.jpg: Unidentifiable dark patch - shadow or damp?  -> MANUAL_REVIEW ['uncertain']
+  03_floor_and_approach.jpg: Floor looks clear.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']

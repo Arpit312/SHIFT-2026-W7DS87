@@ -1,0 +1,8 @@
+set_02: Covered outdoor parking bay
+Expected group decision: CONTINUE_TO_ELECTRICIAN
+Why: Sheltered bay, no pedestrian route crossed.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Covered bay with roof overhead.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  02_mount_point_closeup.jpg: Wall/pillar surface, dry, no peeling paint or mould.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  03_floor_and_approach.jpg: Cable route to car along wall edge, not across a path.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']

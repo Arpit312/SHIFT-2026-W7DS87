@@ -1,0 +1,8 @@
+set_11: Blurry photos
+Expected group decision: RETAKE_PHOTO
+Why: Every photo is too blurry to judge.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Motion-blurred wide shot.  -> RETAKE_PHOTO []
+  02_mount_point_closeup.jpg: Out-of-focus wall.  -> RETAKE_PHOTO []
+  03_floor_and_approach.jpg: Blurry floor shot.  -> RETAKE_PHOTO []

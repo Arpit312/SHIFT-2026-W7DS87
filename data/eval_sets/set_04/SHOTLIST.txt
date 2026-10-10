@@ -1,0 +1,8 @@
+set_04: Home driveway side wall
+Expected group decision: CONTINUE_TO_ELECTRICIAN
+Why: Sheltered side wall, tidy, nothing combustible.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Driveway with car parked, side wall visible.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  02_mount_point_closeup.jpg: Brick/plaster wall, dry, no hanging wires.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  03_floor_and_approach.jpg: Short straight route to charge port, nothing on floor.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
