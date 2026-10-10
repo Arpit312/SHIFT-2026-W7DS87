@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* ── ChargeNOC Design Tokens ──────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --cn-background: #0A0A0B;
+  --cn-surface: #111113;
+  --cn-elevated: #18181B;
+  --cn-border: #2A2A2F;
+
+  /* Text */
+  --cn-text-primary: #F4F1EA;
+  --cn-text-muted: #A3A3AD;
+
+  /* Brand */
+  --cn-brand-orange: #FF7A1A;
+  --cn-brand-orange-hover: #FF9142;
+  --cn-gold: #D9A93C;
+  --cn-gold-bg: #2E260F;
+
+  /* Semantic */
+  --cn-danger: #EF4444;
+  --cn-warning: #F59E0B;
+  --cn-success: #22C55E;
+  --cn-info: #38BDF8;
+
+  /* Spacing scale */
+  --cn-space-1: 0.25rem;
+  --cn-space-2: 0.5rem;
+  --cn-space-3: 0.75rem;
+  --cn-space-4: 1rem;
+  --cn-space-5: 1.25rem;
+  --cn-space-6: 1.5rem;
+  --cn-space-8: 2rem;
+  --cn-space-10: 2.5rem;
+  --cn-space-12: 3rem;
+  --cn-space-16: 4rem;
+
+  /* Radius scale */
+  --cn-radius-sm: 0.375rem;
+  --cn-radius-md: 0.5rem;
+  --cn-radius-lg: 0.75rem;
+  --cn-radius-xl: 1rem;
+  --cn-radius-full: 9999px;
+
+  /* Shadow scale */
+  --cn-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --cn-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --cn-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Tailwind v4 Theme Mapping ────────────────────────────────── */
+@theme inline {
+  /* Colors */
+  --color-background: var(--cn-background);
+  --color-surface: var(--cn-surface);
+  --color-elevated: var(--cn-elevated);
+  --color-cn-border: var(--cn-border);
+  --color-text-primary: var(--cn-text-primary);
+  --color-text-muted: var(--cn-text-muted);
+  --color-brand-orange: var(--cn-brand-orange);
+  --color-brand-orange-hover: var(--cn-brand-orange-hover);
+  --color-gold: var(--cn-gold);
+  --color-gold-bg: var(--cn-gold-bg);
+  --color-danger: var(--cn-danger);
+  --color-warning: var(--cn-warning);
+  --color-success: var(--cn-success);
+  --color-info: var(--cn-info);
+
+  /* Fonts */
+  --font-heading: var(--font-manrope);
+  --font-body: var(--font-inter);
+
+  /* Radius */
+  --radius-sm: var(--cn-radius-sm);
+  --radius-md: var(--cn-radius-md);
+  --radius-lg: var(--cn-radius-lg);
+  --radius-xl: var(--cn-radius-xl);
+
+  /* Shadows */
+  --shadow-sm: var(--cn-shadow-sm);
+  --shadow-md: var(--cn-shadow-md);
+  --shadow-lg: var(--cn-shadow-lg);
+}
+
+/* ── Base Styles ──────────────────────────────────────────────── */
+body {
+  background-color: var(--cn-background);
+  color: var(--cn-text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), system-ui, sans-serif;
+}
+
+/* ── Focus Styles ─────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--cn-brand-orange);
+  outline-offset: 2px;
+}
+
+/* ── Scrollbar Styling ────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cn-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cn-border);
+  border-radius: var(--cn-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cn-text-muted);
+}
+
+/* ── Reduced Motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Selection ────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--cn-brand-orange);
+  color: var(--cn-background);
+}
