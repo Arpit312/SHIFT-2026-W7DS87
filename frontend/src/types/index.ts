@@ -89,11 +89,12 @@ export interface Finding {
   severity: Severity;
   explanation: string;
   confidence: number | null;
-  source_photo_id: string;
+  source_photo_id: string | null;
   evidence_region: EvidenceRegion | null;
   recommended_action: string;
   requires_electrician: boolean;
   status: 'unresolved' | 'resolved';
+  analyzer?: string;
 }
 
 export interface SuggestedCondition {
@@ -105,19 +106,27 @@ export interface SuggestedCondition {
 }
 
 export interface Assessment {
+  id: string;
   request_id: string;
-  assessment_id: string;
   assessment_version: number;
   assessed_at: string;
   overall_verdict: Verdict;
-  confidence: number | null;
-  readings: Reading[];
+  overall_confidence: number | null;
+  readings: Record<string, unknown>;
   findings: Finding[];
   missing_information: string[];
-  conditions: SuggestedCondition[];
+  /** Backend field name: suggested_conditions; aliased as conditions in the contract. */
+  suggested_conditions: SuggestedCondition[];
+  conditions?: SuggestedCondition[];
   requires_human_review: boolean;
   limitations: string[];
   is_demo: boolean;
+  service_name: string;
+  model_version: string | null;
+  guard_adjustments: string[];
+  status: import('@/lib/constants').AssessmentTaskStatus;
+  error_message: string | null;
+  created_at: string;
 }
 
 /* ── Condition ─────────────────────────────────────────────── */

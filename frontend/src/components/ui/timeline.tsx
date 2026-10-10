@@ -6,8 +6,10 @@ export interface TimelineItem {
   title: string;
   description?: string;
   time?: string;
+  date?: string;
   icon?: ReactNode;
   active?: boolean;
+  status?: 'completed' | 'current' | 'pending' | 'error';
 }
 
 interface TimelineProps {

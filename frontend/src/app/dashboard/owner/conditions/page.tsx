@@ -63,9 +63,7 @@ function ConditionsPageInner() {
       if (uploadError) throw uploadError;
       
       await api.submitConditionProof(conditionId, {
-        file_key: filePath,
-        file_type: proofFile.type,
-        file_size_bytes: proofFile.size,
+        evidence_ids: [filePath],
       });
       
       toast({ type: 'success', title: 'Proof uploaded', message: 'The verification team will review your proof shortly.' });
@@ -111,7 +109,7 @@ function ConditionsPageInner() {
                     <CardTitle className="text-lg">{c.title}</CardTitle>
                     <p className="text-sm text-text-muted mt-1">{c.explanation}</p>
                   </div>
-                  <StatusBadge status={c.status} />
+                  <StatusBadge status={c.status} type="condition" />
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -129,9 +127,10 @@ function ConditionsPageInner() {
                   <div className="space-y-4 pt-4 border-t border-cn-border">
                     <h4 className="font-semibold text-sm">Submit Proof of Completion</h4>
                     <FileDropzone
+                      selectedFile={proofFile}
                       onFileSelect={setProofFile}
+                      onClear={() => setProofFile(null)}
                       accept="image/*,application/pdf"
-                      maxSizeMB={10}
                     />
                     <div className="flex justify-end">
                       <Button 

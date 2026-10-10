@@ -159,12 +159,25 @@ export const CHARGESATHI_STARTERS = [
   'Charging will not start. What should I check first?',
 ] as const;
 
+/* ── Assessment Task Status ────────────────────────────────── */
+export const ASSESSMENT_STATUSES = {
+  PENDING: 'pending',
+  RUNNING: 'running',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+} as const;
+
+export type AssessmentTaskStatus = (typeof ASSESSMENT_STATUSES)[keyof typeof ASSESSMENT_STATUSES];
+
 /* ── Photo Upload Slot Guidance ────────────────────────────── */
 export const PHOTO_SLOT_GUIDANCE = {
   [EVIDENCE_CATEGORIES.CHARGER_LABEL]:
     'Photograph the charger nameplate or label showing manufacturer name, power rating (watts or kilowatts), voltage, and any certifications. Ensure text is legible.',
   [EVIDENCE_CATEGORIES.PARKING_LOCATION]:
-    'Photograph your parking spot showing the charger installation location, cable routing, and surrounding area. Include the nearest pillar or wall marking for reference.',
+    'Wide-angle photo of your parking spot showing: (1) the full wall or pillar where the charger will be mounted, (2) the floor between the wall and the parking space, and (3) surrounding storage areas or walkways. ' +
+    'Ensure good lighting — switch lights on and avoid pointing the flash directly at the wall. ' +
+    'Do not photograph just the car or just a socket. ' +
+    'This photo is screened for visible site conditions. It does not determine final approval — an electrician must inspect the site.',
   [EVIDENCE_CATEGORIES.NEAREST_SOCKET]:
     'Photograph the electrical socket, board, or distribution panel that the charger connects to. Show the MCB/switch ratings if visible.',
 } as const;

@@ -115,7 +115,7 @@ function EvidenceLockerPageInner() {
                         <TableCell className="font-mono text-xs">{ev.evidence_id}</TableCell>
                         <TableCell className="capitalize">{ev.category.replace('_', ' ')}</TableCell>
                         <TableCell>{formatDateTime(ev.created_at)}</TableCell>
-                        <TableCell>{ev.condition_addressed ? 'Linked' : 'N/A'}</TableCell>
+                        <TableCell>{ev.condition_addressed_id ? 'Linked' : 'N/A'}</TableCell>
                         <TableCell>
                           <a href={ev.file_url || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-brand-orange hover:underline text-sm">
                             View <ExternalLink className="w-3 h-3" />

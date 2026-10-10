@@ -60,7 +60,7 @@ function BillsPageInner() {
                     <TableCell>₹{inv.total_amount}</TableCell>
                     <TableCell>{inv.status}</TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button variant="secondary" size="sm">View</Button>
                     </TableCell>
                   </TableRow>
                 ))}

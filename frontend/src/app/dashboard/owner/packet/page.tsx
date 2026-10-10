@@ -110,11 +110,14 @@ function PacketPageInner() {
                           <p className="font-medium text-sm">Version {p.version}</p>
                           <p className="text-xs text-text-muted">{formatDateTime(p.created_at)}</p>
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={p.file_url} target="_blank" rel="noopener noreferrer">
-                            <Download className="w-4 h-4 mr-2" /> Download
-                          </a>
-                        </Button>
+                        <a
+                          href={p.download_url ?? '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium bg-elevated border border-cn-border rounded-md hover:bg-surface transition-colors"
+                        >
+                          <Download className="w-4 h-4" /> Download
+                        </a>
                       </div>
                     ))}
                   </div>

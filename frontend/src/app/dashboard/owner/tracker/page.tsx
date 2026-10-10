@@ -21,7 +21,7 @@ export default function TrackerPage() {
   const getTimelineItems = (currentStatus: RequestStatus, submittedAt: string): TimelineItem[] => {
     // Basic logic mapping statuses to a linear timeline
     const isPast = (s: RequestStatus) => {
-      const order = [
+      const order: RequestStatus[] = [
         REQUEST_STATUSES.DRAFT,
         REQUEST_STATUSES.SUBMITTED,
         REQUEST_STATUSES.PHOTO_CHECK_PENDING,
@@ -30,7 +30,9 @@ export default function TrackerPage() {
         REQUEST_STATUSES.AWAITING_VERIFICATION,
         REQUEST_STATUSES.AWAITING_RWA_DECISION,
         REQUEST_STATUSES.APPROVED,
-        REQUEST_STATUSES.CLOSED
+        REQUEST_STATUSES.APPROVED_WITH_CONDITIONS,
+        REQUEST_STATUSES.REJECTED,
+        REQUEST_STATUSES.CLOSED,
       ];
       return order.indexOf(currentStatus) >= order.indexOf(s);
     };
@@ -40,29 +42,29 @@ export default function TrackerPage() {
         id: '1',
         title: 'Request Submitted',
         description: 'Initial site photos and details provided.',
-        date: submittedAt,
-        status: isPast(REQUEST_STATUSES.SUBMITTED) ? 'completed' : 'pending',
+        time: submittedAt,
+        active: isPast(REQUEST_STATUSES.SUBMITTED),
         icon: <FileText className="w-4 h-4" />
       },
       {
         id: '2',
         title: 'AI Photo Check',
         description: 'Automated preliminary screening of evidence.',
-        status: currentStatus === REQUEST_STATUSES.PHOTO_CHECK_PENDING ? 'current' : isPast(REQUEST_STATUSES.REVIEW_REQUIRED) ? 'completed' : 'pending',
+        active: currentStatus === REQUEST_STATUSES.PHOTO_CHECK_PENDING || isPast(REQUEST_STATUSES.REVIEW_REQUIRED),
         icon: <CheckSquare className="w-4 h-4" />
       },
       {
         id: '3',
         title: 'Condition Verification',
         description: 'Completion of any corrective actions.',
-        status: currentStatus === REQUEST_STATUSES.CORRECTIVE_ACTION_REQUIRED ? 'error' : currentStatus === REQUEST_STATUSES.AWAITING_VERIFICATION ? 'current' : isPast(REQUEST_STATUSES.AWAITING_RWA_DECISION) ? 'completed' : 'pending',
+        active: currentStatus === REQUEST_STATUSES.CORRECTIVE_ACTION_REQUIRED || isPast(REQUEST_STATUSES.AWAITING_VERIFICATION),
         icon: <Wrench className="w-4 h-4" />
       },
       {
         id: '4',
         title: 'RWA Decision',
         description: 'Final review by the society RWA.',
-        status: currentStatus === REQUEST_STATUSES.AWAITING_RWA_DECISION ? 'current' : (isPast(REQUEST_STATUSES.APPROVED) || currentStatus === REQUEST_STATUSES.REJECTED) ? 'completed' : 'pending',
+        active: currentStatus === REQUEST_STATUSES.AWAITING_RWA_DECISION || isPast(REQUEST_STATUSES.APPROVED),
         icon: <CheckCircle2 className="w-4 h-4" />
       }
     ];
