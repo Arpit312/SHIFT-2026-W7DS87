@@ -242,6 +242,17 @@ export interface ApiError {
   detail: string;
   code: string;
   errors?: Record<string, string[]>;
+  message?: string;
+}
+
+export interface ChatHistoryTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  severity: 'low' | 'medium' | 'high' | null;
 }
 
 /* ── Overview Stats ────────────────────────────────────────── */

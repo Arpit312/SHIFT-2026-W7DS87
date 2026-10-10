@@ -221,6 +221,11 @@ class ApiClient {
   getAdminOverview() {
     return this.get<{ societies_count: number; users_count: number; requests_count: number }>('/api/v1/admin/overview/');
   }
+
+  /* ── ChargeSathi ───────────────────────────────────────── */
+  sendChat(data: { message: string; history: import('@/types').ChatHistoryTurn[] }) {
+    return this.post<import('@/types').ChatResponse>('/api/v1/chat/', data);
+  }
 }
 
 export class ApiRequestError extends Error {
@@ -228,7 +233,7 @@ export class ApiRequestError extends Error {
   body: ApiError;
 
   constructor(status: number, body: ApiError) {
-    super(body.detail);
+    super(body.detail || body.message || `Request failed with status ${status}`);
     this.name = 'ApiRequestError';
     this.status = status;
     this.body = body;

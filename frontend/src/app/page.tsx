@@ -182,7 +182,7 @@ export default function LandingPage() {
             <span className="font-heading font-semibold">ChargeNOC</span>
           </div>
           <div className="text-sm text-text-muted">
-            &copy; {2024} ChargeNOC. All rights reserved.
+            &copy; {2026} ChargeNOC. All rights reserved.
           </div>
         </div>
       </footer>

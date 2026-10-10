@@ -148,6 +148,17 @@ export type SlotStatus = (typeof SLOT_STATUSES)[keyof typeof SLOT_STATUSES];
 export const HAAN_PACKET_DISCLAIMER =
   'This document records a request and a decision. It is not a legal NOC or an electrical safety certificate.';
 
+/* ── ChargeSathi ───────────────────────────────────────────── */
+export const CHARGESATHI_DISCLAIMER =
+  'AI assistant, may be wrong. Not electrical certification.';
+
+export const CHARGESATHI_STARTERS = [
+  'How does a ChargeNOC charging request work?',
+  'What photos do I need to upload for Photo Check?',
+  'What is a Haan Packet?',
+  'Charging will not start. What should I check first?',
+] as const;
+
 /* ── Photo Upload Slot Guidance ────────────────────────────── */
 export const PHOTO_SLOT_GUIDANCE = {
   [EVIDENCE_CATEGORIES.CHARGER_LABEL]:
