@@ -14,8 +14,19 @@ class Assessment(models.Model):
     suggested_conditions = models.JSONField(default=list)
     requires_human_review = models.BooleanField(default=False)
     limitations = models.JSONField(default=list)
+    
+    # AI Tracking
     is_demo = models.BooleanField(default=False)
+    service_name = models.CharField(max_length=100, default='mock')
+    model_version = models.CharField(max_length=100, null=True, blank=True)
+    guard_adjustments = models.JSONField(default=list)
     raw_response = models.JSONField(default=dict)
+    
+    # Task Tracking
+    status = models.CharField(max_length=20, default='completed') # pending, running, completed, failed
+    task_id = models.CharField(max_length=100, null=True, blank=True)
+    error_message = models.TextField(null=True, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

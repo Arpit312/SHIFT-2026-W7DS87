@@ -12,6 +12,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-dummy-key')
 DEBUG = env('DEBUG', default=True)
+PHOTO_CHECK_BACKEND = env('PHOTO_CHECK_BACKEND', default='mock')
 
 ALLOWED_HOSTS = ['*']
 
