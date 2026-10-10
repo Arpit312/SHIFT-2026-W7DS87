@@ -64,8 +64,11 @@ playwright-report/
 test-results/
 coverage/
 
-# AI documentation
-docs/AI_BRANCH_ANALYSIS.md
-docs/AI_INTEGRATION.md
-docs/AI_INTEGRATION_REPORT.md
-docs/ai-verification/
+# Documentation (keep ChargeSathi integration docs tracked)
+docs/*
+!docs/CHATBOT_ANALYSIS.md
+!docs/CHATBOT_INTEGRATION_REPORT.md
+!docs/LOCAL_SETUP.md
+!docs/chatbot-verification/
+!docs/chatbot-verification/**
+
