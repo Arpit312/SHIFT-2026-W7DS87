@@ -326,12 +326,12 @@ const BASE_HARDWARE = [
   },
 ];
 
-const HAZARD_HARDWARE_TRIGGERS: Array<{
+const HAZARD_HARDWARE_TRIGGERS: {
   triggers: HazardType[];
   category: string;
   reason: string;
   missing_inputs: string[];
-}> = [
+}[] = [
   {
     triggers: ['water_or_dampness'],
     category: 'water_exposure_mitigation_review',
@@ -704,7 +704,7 @@ export async function screenSiteArea(params: {
  * Screen Multiple Photos for a Site (Multi-photo Group Aggregation)
  */
 export async function screenSiteGroup(
-  photos: Array<{ uri: string; base64?: string | null; filename?: string }>,
+  photos: { uri: string; base64?: string | null; filename?: string }[],
   options?: { chargerPowerKw?: number; chargerType?: 'AC' | 'DC' }
 ): Promise<{
   images: ChargeNOCScreeningResult[];

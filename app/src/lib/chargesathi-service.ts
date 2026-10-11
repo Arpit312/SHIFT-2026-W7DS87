@@ -162,10 +162,10 @@ export function parseChargeSathiResponse(rawText: string): { severity: SeverityL
  * Validate contents structure according to Gemini API spec
  */
 export function validateChatContents(
-  history: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }>
-): Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> | null {
+  history: { role: 'user' | 'model'; parts: { text: string }[] }[]
+): { role: 'user' | 'model'; parts: { text: string }[] }[] | null {
   if (!Array.isArray(history) || !history.length || history.length > 14) return null;
-  const out: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+  const out: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
 
   for (const m of history) {
     const t = m && m.parts && m.parts[0] && m.parts[0].text;
@@ -201,7 +201,7 @@ export async function sendChargeSathiQuery(params: {
   if (canUseGemini) {
     try {
       // Build valid Gemini conversation turns
-      const contentsPayload: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = history.slice(-6).map(msg => ({
+      const contentsPayload: { role: 'user' | 'model'; parts: { text: string }[] }[] = history.slice(-6).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }],
       }));

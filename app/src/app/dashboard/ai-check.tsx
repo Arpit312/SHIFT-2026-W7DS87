@@ -21,38 +21,28 @@ import {
   AlertTriangle,
   Bot,
   Camera,
-  CheckCircle2,
-  ChevronRight,
-  Flame,
   Globe,
   Image as ImageIcon,
   Key,
   Layers,
-  MessageSquare,
   PhoneCall,
-  RefreshCcw,
   Send,
-  ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Wrench,
-  Zap,
 } from 'lucide-react-native';
 
-import { AppHeader, AppScreen, Card, FeatureRow, Metric, Pill, PrimaryButton } from '../../components/charge-ui';
+import { AppHeader, AppScreen, Card, Metric, Pill, PrimaryButton } from '../../components/charge-ui';
 import { ChargeColors as C, ChargeSpacing as S } from '../../constants/charge-theme';
 import {
   AIVisionResult,
   analyzeInstallationPhoto,
   ChargeNOCGroupResult,
-  ChargeNOCScreeningResult,
   DEFAULT_GEMINI_KEY,
   EquipmentClassification,
   getGeminiApiKey,
   getLatestScanResult,
   HardwareRecommendation,
   HAZARD_LABELS,
-  recommendHardware,
   screenSiteGroup,
   setGeminiApiKey,
   STATUS_META,
@@ -60,12 +50,18 @@ import {
 } from '../../lib/ai-vision-service';
 import {
   ChatMessage,
-  parseChargeSathiResponse,
   QUICK_PROBLEMS,
   sendChargeSathiQuery,
-  SeverityLevel,
   SUPPORTED_LANGUAGES,
 } from '../../lib/chargesathi-service';
+
+const CLASSIFICATION_TAGS: { id: EquipmentClassification; label: string }[] = [
+  { id: 'AUTO_DETECT', label: '✨ AI Auto-Detect' },
+  { id: '16A_DEDICATED_SOCKET', label: '16A Power Socket' },
+  { id: 'INDUSTRIAL_COMMANDO_PLUG', label: 'Commando Plug' },
+  { id: 'MCB_DISTRIBUTION_PANEL', label: 'MCB / DB Box' },
+  { id: 'STANDARD_5A_DOMESTIC_SOCKET', label: '5A Domestic' },
+];
 
 export default function AICheckScreen() {
   const router = useRouter();
@@ -78,8 +74,7 @@ export default function AICheckScreen() {
   // Vision Screening State
   const [cameraOpen, setCameraOpen] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
-  const [multiPhotos, setMultiPhotos] = useState<Array<{ uri: string; base64?: string | null; label: string }>>([]);
+  const [multiPhotos, setMultiPhotos] = useState<{ uri: string; base64?: string | null; label: string }[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<AIVisionResult | null>(null);
   const [groupResult, setGroupResult] = useState<ChargeNOCGroupResult | null>(null);
@@ -143,7 +138,6 @@ export default function AICheckScreen() {
       });
       if (photo?.uri) {
         setPhotoUri(photo.uri);
-        setPhotoBase64(photo.base64 || null);
         setCameraOpen(false);
         const newPhotoItem = { uri: photo.uri, base64: photo.base64 || null, label: `Photo #${multiPhotos.length + 1}` };
         setMultiPhotos(prev => [...prev, newPhotoItem]);
@@ -166,7 +160,6 @@ export default function AICheckScreen() {
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
         setPhotoUri(asset.uri);
-        setPhotoBase64(asset.base64 || null);
         const newPhotoItem = { uri: asset.uri, base64: asset.base64 || null, label: `Photo #${multiPhotos.length + 1}` };
         setMultiPhotos(prev => [...prev, newPhotoItem]);
         executeSiteAnalysis(asset.uri, asset.base64 || null);
@@ -366,6 +359,28 @@ export default function AICheckScreen() {
               <Text style={styles.cardHeaderTitle}>Installation Area Photo Screening</Text>
               <Text style={styles.cardHeaderSubtitle}>Analyzes wall dampness, exposed wiring, clearance & hardware</Text>
 
+              {/* Tag Selector */}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tagScroll}>
+                {CLASSIFICATION_TAGS.map(tag => (
+                  <TouchableOpacity
+                    key={tag.id}
+                    activeOpacity={0.8}
+                    onPress={() => setSelectedTag(tag.id)}
+                    style={[
+                      styles.tagChip,
+                      selectedTag === tag.id && styles.tagChipActive,
+                    ]}>
+                    <Text
+                      style={[
+                        styles.tagChipText,
+                        selectedTag === tag.id && styles.tagChipTextActive,
+                      ]}>
+                      {tag.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
               <View style={styles.photoActionRow}>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -421,6 +436,17 @@ export default function AICheckScreen() {
                 </View>
               )}
             </Card>
+
+            {/* Group Aggregation Banner */}
+            {groupResult && (
+              <View style={styles.groupBanner}>
+                <Layers size={18} color={C.orange} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.groupBannerTitle}>Site Multi-Photo Status: {groupResult.group_status}</Text>
+                  <Text style={styles.groupBannerSubtitle}>{groupResult.image_count} photos evaluated collectively</Text>
+                </View>
+              </View>
+            )}
 
             {/* Screening Decision Banner */}
             {scanResult && (
@@ -485,7 +511,7 @@ export default function AICheckScreen() {
               </Card>
             )}
 
-            {/* Preliminary Hardware Checklist (recommend_hardware) */}
+            {/* Preliminary Hardware Checklist */}
             {hardwareResult && hardwareResult.hardware_items.length > 0 && (
               <Card>
                 <Text style={styles.cardHeaderTitle}>Preliminary Hardware Checklist</Text>
@@ -815,6 +841,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: S.sm,
   },
+  tagScroll: {
+    flexDirection: 'row',
+    marginBottom: S.sm,
+  },
+  tagChip: {
+    backgroundColor: C.surfaceAlt,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    marginRight: 6,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  tagChipActive: {
+    borderColor: C.orange,
+    backgroundColor: 'rgba(255, 122, 26, 0.12)',
+  },
+  tagChipText: {
+    color: C.textMuted,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  tagChipTextActive: {
+    color: C.orange,
+    fontWeight: '700',
+  },
   photoActionRow: {
     flexDirection: 'row',
     gap: S.sm,
@@ -908,6 +960,26 @@ const styles = StyleSheet.create({
     color: C.white,
     fontSize: 12,
     fontWeight: '600',
+  },
+  groupBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(255, 122, 26, 0.12)',
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.orange,
+  },
+  groupBannerTitle: {
+    color: C.orange,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  groupBannerSubtitle: {
+    color: C.textMuted,
+    fontSize: 11,
+    marginTop: 2,
   },
   verdictCard: {
     borderWidth: 2,
