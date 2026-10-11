@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Alert, StyleSheet } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { supabase } from '../lib/supabase';
+import { LogIn, ShieldCheck } from 'lucide-react-native';
 
-const C = {
-  background: '#0A0A0B',
-  surface: '#111113',
-  border: '#2A2A2F',
-  textPrimary: '#F4F1EA',
-  textMuted: '#A3A3AD',
-  brandOrange: '#FF7A1A',
-};
+import { AppScreen, BrandLogo, Card, FeatureRow, Pill, PrimaryButton } from '../components/charge-ui';
+import { ChargeColors as C, ChargeSpacing as S } from '../constants/charge-theme';
+import { supabase } from '../lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,71 +15,141 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+    if (!email.trim() || !password) {
+      Alert.alert('Missing details', 'Email and password dono required hain.');
       return;
     }
+
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setIsLoading(false);
+
     if (error) {
       Alert.alert('Login failed', error.message);
-    } else {
-      router.replace('/dashboard');
+      return;
     }
+
+    router.replace('/dashboard');
   };
 
   return (
-    <SafeAreaView style={s.safe}>
-      <View style={s.container}>
-        <View style={s.logoWrap}>
-          <Image source={require('../../assets/images/logo-themed.jpg')} style={{ width: 200, height: 100 }} resizeMode="contain" />
-        </View>
-
-        <View style={s.card}>
-          <Text style={s.title}>Welcome back</Text>
-          <Text style={s.subtitle}>Sign in to your account to continue</Text>
-
-          <Text style={s.label}>Email</Text>
-          <TextInput style={s.input} placeholder="you@example.com" placeholderTextColor={C.textMuted}
-            value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-
-          <Text style={s.label}>Password</Text>
-          <TextInput style={s.input} placeholder="••••••••" placeholderTextColor={C.textMuted}
-            value={password} onChangeText={setPassword} secureTextEntry />
-
-          <TouchableOpacity onPress={onLogin} disabled={isLoading} style={[s.btn, isLoading && { opacity: 0.7 }]}>
-            {isLoading ? <ActivityIndicator color="white" /> : <Text style={s.btnText}>Sign In</Text>}
-          </TouchableOpacity>
-
-          <View style={s.footer}>
-            <Text style={{ color: C.textMuted }}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/signup')}>
-              <Text style={{ color: C.brandOrange, fontWeight: '600' }}>Sign up</Text>
-            </TouchableOpacity>
+    <AppScreen>
+      <SafeAreaView style={styles.safe}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <View style={styles.logoWrap}>
+            <BrandLogo size={58} />
+            <Pill label="Owner / RWA access" tone="info" />
           </View>
-        </View>
-      </View>
-    </SafeAreaView>
+
+          <Card style={styles.form}>
+            <Text style={styles.title}>Welcome back</Text>
+            <Text style={styles.subtitle}>Request, safety check aur billing dashboard yahin se continue karo.</Text>
+
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              placeholder="you@example.com"
+              placeholderTextColor={C.textMuted}
+              style={styles.input}
+              value={email}
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              onChangeText={setPassword}
+              placeholder="Password"
+              placeholderTextColor={C.textMuted}
+              secureTextEntry
+              style={styles.input}
+              value={password}
+            />
+
+            <TouchableOpacity
+              activeOpacity={0.82}
+              disabled={isLoading}
+              onPress={onLogin}
+              style={[styles.submit, isLoading && { opacity: 0.65 }]}>
+              {isLoading ? <ActivityIndicator color={C.white} /> : <LogIn size={18} color={C.white} />}
+              <Text style={styles.submitText}>Sign in</Text>
+            </TouchableOpacity>
+          </Card>
+
+          <Card>
+            <FeatureRow
+              color={C.green}
+              icon={ShieldCheck}
+              title="Safe access"
+              subtitle="Your request packets, AI check results and bills stay in one place."
+            />
+            <PrimaryButton label="Create new account" variant="secondary" onPress={() => router.push('/signup')} />
+          </Card>
+        </ScrollView>
+      </SafeAreaView>
+    </AppScreen>
   );
 }
 
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.background, justifyContent: 'center', alignItems: 'center', padding: 16 },
-  container: { width: '100%', maxWidth: 400 },
-  logoWrap: { alignItems: 'center', marginBottom: 40 },
-  card: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 24 },
-  title: { color: C.textPrimary, fontSize: 24, fontWeight: '700', textAlign: 'center' },
-  subtitle: { color: C.textMuted, textAlign: 'center', marginTop: 4, marginBottom: 24 },
-  label: { color: C.textPrimary, fontSize: 14, fontWeight: '500', marginBottom: 6 },
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+  },
+  content: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: S.lg,
+    gap: S.lg,
+  },
+  logoWrap: {
+    alignItems: 'center',
+    gap: S.sm,
+  },
+  form: {
+    gap: S.md,
+  },
+  title: {
+    color: C.text,
+    fontSize: 26,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+  subtitle: {
+    color: C.textMuted,
+    textAlign: 'center',
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: S.sm,
+  },
+  label: {
+    color: C.text,
+    fontSize: 13,
+    fontWeight: '800',
+  },
   input: {
-    backgroundColor: C.background, borderWidth: 1, borderColor: C.border, borderRadius: 8,
-    paddingHorizontal: 12, paddingVertical: 12, color: C.textPrimary, marginBottom: 16,
+    minHeight: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.background,
+    color: C.text,
+    paddingHorizontal: S.md,
+    fontSize: 15,
   },
-  btn: {
-    backgroundColor: C.brandOrange, paddingVertical: 14, borderRadius: 8,
-    alignItems: 'center', marginTop: 8,
+  submit: {
+    minHeight: 50,
+    borderRadius: 8,
+    backgroundColor: C.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: S.sm,
+    marginTop: S.sm,
   },
-  btnText: { color: 'white', fontWeight: '600', fontSize: 16 },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  submitText: {
+    color: C.white,
+    fontWeight: '900',
+    fontSize: 15,
+  },
 });
+

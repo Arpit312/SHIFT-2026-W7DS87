@@ -1,5 +1,5 @@
 import 'react-native-url-polyfill/auto';
-import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
@@ -11,7 +11,6 @@ const safeStorage = {
   getItem: async (key: string) => {
     if (typeof window === 'undefined') return memoryStorage[key] || null;
     try {
-      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
       return await AsyncStorage.getItem(key);
     } catch {
       return memoryStorage[key] || null;
@@ -20,7 +19,6 @@ const safeStorage = {
   setItem: async (key: string, value: string) => {
     if (typeof window === 'undefined') { memoryStorage[key] = value; return; }
     try {
-      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
       await AsyncStorage.setItem(key, value);
     } catch {
       memoryStorage[key] = value;
@@ -29,7 +27,6 @@ const safeStorage = {
   removeItem: async (key: string) => {
     if (typeof window === 'undefined') { delete memoryStorage[key]; return; }
     try {
-      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
       await AsyncStorage.removeItem(key);
     } catch {
       delete memoryStorage[key];

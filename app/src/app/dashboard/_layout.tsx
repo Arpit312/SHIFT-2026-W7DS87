@@ -1,45 +1,72 @@
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, FilePlus, User } from 'lucide-react-native';
+import { BatteryCharging, Bot, FilePlus, Home, User, WalletCards } from 'lucide-react-native';
+
+import { ChargeColors as C } from '../../constants/charge-theme';
 
 export default function DashboardLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
+        tabBarActiveTintColor: C.orange,
+        tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
-          backgroundColor: '#111113',
-          borderTopColor: '#2A2A2F',
+          backgroundColor: C.surface,
+          borderTopColor: C.border,
+          minHeight: 68,
+          paddingTop: 8,
+          paddingBottom: 10,
         },
-        tabBarActiveTintColor: '#FF7A1A',
-        tabBarInactiveTintColor: '#A3A3AD',
-        headerStyle: {
-          backgroundColor: '#111113',
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '800',
         },
-        headerTintColor: '#F4F1EA',
-        contentStyle: { backgroundColor: '#0A0A0B' },
-      }}
-    >
+        sceneStyle: { backgroundColor: C.background },
+      }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Overview',
-          tabBarIcon: ({ color }) => <LayoutDashboard size={24} color={color} />,
+          title: 'Home',
+          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="ai-check"
+        options={{
+          title: 'AI Check',
+          tabBarIcon: ({ color }) => <Bot size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="new-request"
         options={{
-          title: 'New Request',
-          tabBarIcon: ({ color }) => <FilePlus size={24} color={color} />,
+          title: 'Request',
+          tabBarIcon: ({ color }) => <FilePlus size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="billing"
+        options={{
+          title: 'Bills',
+          tabBarIcon: ({ color }) => <WalletCards size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ color }) => <User size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="packet"
+        options={{
+          href: null,
+          title: 'Haan Packet',
+          tabBarIcon: ({ color }) => <BatteryCharging size={22} color={color} />,
         }}
       />
     </Tabs>
   );
 }
+

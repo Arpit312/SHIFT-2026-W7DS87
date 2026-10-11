@@ -31,7 +31,7 @@ export default function HeroScene() {
       -1,
       false
     );
-  }, []);
+  }, [floatY, ringRotation]);
 
   const floatingStyle = useAnimatedStyle(() => {
     return {
@@ -46,7 +46,7 @@ export default function HeroScene() {
   });
 
   return (
-    <View style={[StyleSheet.absoluteFillObject, styles.container]} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, styles.container]} pointerEvents="none">
       <View style={[styles.glow, { backgroundColor: 'rgba(255, 122, 26, 0.1)', top: '15%', left: '15%' }]} />
       <View style={[styles.glow, { backgroundColor: 'rgba(217, 169, 60, 0.1)', bottom: '15%', right: '15%' }]} />
 
@@ -83,7 +83,7 @@ export default function HeroScene() {
         </Svg>
 
         {/* SPINNING RINGS (Independently rotating) */}
-        <Animated.View style={[StyleSheet.absoluteFillObject, ringStyle]}>
+        <Animated.View style={[StyleSheet.absoluteFill, ringStyle]}>
           <Svg width="350" height="350" viewBox="0 0 300 300">
             {/* Orbiting Gold Rings (Thin and intersecting) */}
             <Ellipse cx="150" cy="150" rx="140" ry="25" stroke="#D9A93C" strokeWidth="2" fill="none" opacity="0.7" transform="rotate(-30 150 150)" />

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "ChargeNOC",
+    "slug": "chargenoc",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "app",
+    "scheme": "chargenoc",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -28,9 +28,17 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
+          "backgroundColor": "#090A0C",
+          "image": "./assets/images/logo-glow.png",
           "imageWidth": 76
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ChargeNOC to scan socket, charger label, and parking evidence for AI safety checks.",
+          "microphonePermission": "Allow ChargeNOC to record audio only when a future verification flow needs it.",
+          "recordAudioAndroid": false
         }
       ]
     ],

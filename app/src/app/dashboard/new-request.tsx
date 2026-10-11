@@ -1,127 +1,267 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Camera as CameraIcon, UploadCloud, CheckCircle2 } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Bot, Building2, Car, CheckCircle2, FileCheck2, PlugZap, Send, ShieldCheck } from 'lucide-react-native';
 
-const C = {
-  background: '#0A0A0B',
-  surface: '#111113',
-  border: '#2A2A2F',
-  textPrimary: '#F4F1EA',
-  textMuted: '#A3A3AD',
-  brandOrange: '#FF7A1A',
-  success: '#22C55E',
-};
+import { AppHeader, AppScreen, Card, FeatureRow, Pill, PrimaryButton } from '../../components/charge-ui';
+import { ChargeColors as C, ChargeSpacing as S } from '../../constants/charge-theme';
+import { createOrUpdateNOCPacket } from '../../lib/noc-packet-service';
+import { AIVisionResult, getLatestScanResult } from '../../lib/ai-vision-service';
+import { EV_DATABASE, getSavedVehicleId, saveSelectedVehicleId } from '../../lib/load-planner-service';
+
+const checklist = [
+  'Allotted parking bay confirmed in society records',
+  'No extension board or multi-plug daisy chain',
+  'Licensed electrician earthing resistance verified (<5 Ohms)',
+  'Monthly virtual bill reconciliation accepted',
+];
 
 export default function NewRequestScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const cameraRef = useRef<CameraView>(null);
+  const router = useRouter();
 
-  if (!permission) return <View />;
+  const [vehicle, setVehicle] = useState('Ather 450X');
+  const [charger, setCharger] = useState('3.3 kW portable charger');
+  const [parking, setParking] = useState('P2-17 near meter room');
+  const [accepted, setAccepted] = useState(true);
+  const [latestAiScan, setLatestAiScan] = useState<AIVisionResult | null>(null);
 
-  if (!permission.granted) {
-    return (
-      <View style={s.permissionWrap}>
-        <Text style={s.permissionText}>
-          We need your permission to show the camera so you can take photos of
-          your electricity meter and parking spot directly.
-        </Text>
-        <TouchableOpacity onPress={requestPermission} style={s.grantBtn}>
-          <Text style={s.grantBtnText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  useEffect(() => {
+    (async () => {
+      const vid = await getSavedVehicleId();
+      const v = EV_DATABASE.find(item => item.id === vid);
+      if (v) {
+        setVehicle(v.name);
+        setCharger(`${v.maxAcKw} kW portable charger`);
+      }
+      const ai = await getLatestScanResult();
+      if (ai) setLatestAiScan(ai);
+    })();
+  }, []);
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
-      if (photo?.uri) setPhotoUri(photo.uri);
-    }
+  const goTo = (path: '/dashboard/ai-check' | '/dashboard/packet') => {
+    router.push(path as never);
   };
 
-  const submitRequest = () => {
-    Alert.alert('Success', 'Your charging request with the photo evidence has been submitted successfully to your RWA!');
-    setPhotoUri(null);
+  const submitRequest = async () => {
+    if (!vehicle.trim() || !charger.trim() || !parking.trim()) {
+      Alert.alert('Missing details', 'Vehicle, charger aur parking detail fill karo.');
+      return;
+    }
+    if (!accepted) {
+      Alert.alert('Checklist needed', 'Safety checklist accept karna required hai.');
+      return;
+    }
+
+    // Save actual vehicle mapping
+    const matchedV = EV_DATABASE.find(v => v.name.toLowerCase().includes(vehicle.toLowerCase().trim()));
+    if (matchedV) {
+      await saveSelectedVehicleId(matchedV.id);
+    }
+
+    await createOrUpdateNOCPacket({
+      vehicleModel: vehicle.trim(),
+      chargerRating: charger.trim(),
+      parkingLocation: parking.trim(),
+      checklistAccepted: accepted,
+    });
+
+    Alert.alert(
+      'NOC Packet Generated!',
+      latestAiScan
+        ? `Packet created with verified AI Score (${latestAiScan.fireRiskScore}/100) and ${latestAiScan.requiredConditions.length} safety conditions.`
+        : 'Packet created. AI Photo Check attach karne se approval probability 95% ho jati hai.'
+    );
+    goTo('/dashboard/packet');
   };
 
   return (
-    <View style={s.container}>
-      <Text style={s.heading}>New Charging Request</Text>
-      <Text style={s.subheading}>
-        Use your mobile camera to quickly capture evidence of your electricity
-        meter. This speeds up RWA approval.
-      </Text>
+    <AppScreen>
+      <SafeAreaView style={styles.safe}>
+        <AppHeader title="New request" subtitle="Build a verified RWA approval packet" />
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <Card tone="highlight" style={styles.card}>
+            <View style={styles.rowBetween}>
+              <Pill label="NOC request" tone="warn" />
+              <Pill label={latestAiScan ? 'AI Evidence Attached' : 'Photo Pending'} tone={latestAiScan ? 'good' : 'neutral'} />
+            </View>
 
-      {photoUri ? (
-        <View style={s.preview}>
-          <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFillObject} />
-          <View style={s.checkBadge}>
-            <CheckCircle2 size={24} color="white" />
-          </View>
-        </View>
-      ) : (
-        <View style={s.preview}>
-          <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back" />
-          <View style={s.shutterRow}>
-            <TouchableOpacity onPress={takePicture} style={s.shutterOuter}>
-              <View style={s.shutterInner} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
+            <Field
+              icon={Car}
+              label="EV model"
+              onChangeText={setVehicle}
+              placeholder="e.g. Ather 450X or Tata Nexon EV"
+              value={vehicle}
+            />
+            <Field
+              icon={PlugZap}
+              label="Charger rating"
+              onChangeText={setCharger}
+              placeholder="e.g. 3.3 kW portable charger"
+              value={charger}
+            />
+            <Field
+              icon={Building2}
+              label="Parking / socket location"
+              onChangeText={setParking}
+              placeholder="Tower, basement, bay number"
+              value={parking}
+            />
+          </Card>
 
-      {photoUri ? (
-        <View style={s.actionRow}>
-          <TouchableOpacity onPress={() => setPhotoUri(null)} style={s.retakeBtn}>
-            <Text style={s.retakeBtnText}>Retake Photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={submitRequest} style={s.submitBtn}>
-            <UploadCloud size={20} color="white" />
-            <Text style={s.submitBtnText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={s.disabledBtn}>
-          <Text style={{ color: C.textMuted, fontWeight: '500' }}>Take a photo to proceed</Text>
-        </View>
-      )}
+          <Card>
+            <FeatureRow
+              color={latestAiScan ? C.green : C.blue}
+              icon={latestAiScan ? ShieldCheck : Bot}
+              onPress={() => goTo('/dashboard/ai-check')}
+              title={latestAiScan ? 'AI Photo Check Verified' : 'Attach AI photo check'}
+              subtitle={
+                latestAiScan
+                  ? `Fire Risk Score: ${latestAiScan.fireRiskScore}/100 (${latestAiScan.safetyGrade.split(' - ')[0]})`
+                  : 'Run real computer vision audit before submitting to RWA'
+              }
+              trailing={
+                <Pill
+                  label={latestAiScan ? `${latestAiScan.fireRiskScore} Safe` : 'Run Scan'}
+                  tone={latestAiScan ? 'good' : 'warn'}
+                />
+              }
+            />
+            <FeatureRow
+              color={C.green}
+              icon={FileCheck2}
+              onPress={() => goTo('/dashboard/packet')}
+              title="Preview Haan Packet"
+              subtitle="View dynamic QR record, conditions and committee voting"
+            />
+          </Card>
+
+          <Card style={styles.card}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.sectionTitle}>Safety checklist</Text>
+              <TouchableOpacity activeOpacity={0.8} onPress={() => setAccepted((value) => !value)} style={styles.checkToggle}>
+                <CheckCircle2 size={18} color={accepted ? C.green : C.textMuted} />
+                <Text style={[styles.checkToggleText, accepted && { color: C.green }]}>
+                  {accepted ? 'Accepted' : 'Review'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {checklist.map((item) => (
+              <View key={item} style={styles.checkItem}>
+                <CheckCircle2 size={16} color={accepted ? C.green : C.textMuted} />
+                <Text style={styles.checkText}>{item}</Text>
+              </View>
+            ))}
+          </Card>
+
+          <PrimaryButton label="Submit packet draft" icon={Send} onPress={submitRequest} />
+        </ScrollView>
+      </SafeAreaView>
+    </AppScreen>
+  );
+}
+
+function Field({
+  icon: Icon,
+  label,
+  value,
+  placeholder,
+  onChangeText,
+}: {
+  icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+  label: string;
+  value: string;
+  placeholder: string;
+  onChangeText: (value: string) => void;
+}) {
+  return (
+    <View style={styles.field}>
+      <View style={styles.labelRow}>
+        <Icon size={16} color={C.orange} />
+        <Text style={styles.label}>{label}</Text>
+      </View>
+      <TextInput
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={C.textMuted}
+        style={styles.input}
+        value={value}
+      />
     </View>
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: C.background, padding: 16 },
-  heading: { color: C.textPrimary, fontSize: 20, fontWeight: '700', marginBottom: 4 },
-  subheading: { color: C.textMuted, marginBottom: 20, lineHeight: 22 },
-  preview: { flex: 1, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: C.border, marginBottom: 16 },
-  checkBadge: { position: 'absolute', bottom: 16, right: 16, backgroundColor: C.success, padding: 8, borderRadius: 999 },
-  shutterRow: {
-    position: 'absolute', bottom: 0, width: '100%', paddingVertical: 24,
-    flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)',
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
   },
-  shutterOuter: {
-    width: 64, height: 64, borderRadius: 32, borderWidth: 4,
-    borderColor: C.brandOrange, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center',
+  content: {
+    padding: S.lg,
+    paddingBottom: 96,
+    gap: S.lg,
   },
-  shutterInner: { width: 48, height: 48, borderRadius: 24, backgroundColor: C.brandOrange },
-  actionRow: { flexDirection: 'row', gap: 12 },
-  retakeBtn: {
-    flex: 1, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border,
-    paddingVertical: 16, borderRadius: 10, alignItems: 'center',
+  card: {
+    gap: S.md,
   },
-  retakeBtnText: { color: C.textPrimary, fontWeight: '500' },
-  submitBtn: {
-    flex: 1, backgroundColor: C.brandOrange, paddingVertical: 16, borderRadius: 10,
-    flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8,
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: S.md,
   },
-  submitBtnText: { color: 'white', fontWeight: '700' },
-  disabledBtn: {
-    backgroundColor: C.surface, paddingVertical: 16, borderRadius: 10, alignItems: 'center', opacity: 0.5,
+  field: {
+    gap: S.sm,
   },
-  permissionWrap: { flex: 1, backgroundColor: C.background, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  permissionText: { color: C.textPrimary, textAlign: 'center', marginBottom: 24, lineHeight: 22 },
-  grantBtn: { backgroundColor: C.brandOrange, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
-  grantBtnText: { color: 'white', fontWeight: '700' },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: S.sm,
+  },
+  label: {
+    color: C.text,
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  input: {
+    minHeight: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.background,
+    color: C.text,
+    paddingHorizontal: S.md,
+    fontSize: 15,
+  },
+  sectionTitle: {
+    color: C.text,
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  checkToggle: {
+    minHeight: 34,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.surfaceAlt,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: S.xs,
+    paddingHorizontal: S.sm,
+  },
+  checkToggleText: {
+    color: C.textMuted,
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: S.sm,
+  },
+  checkText: {
+    color: C.textMuted,
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
+  },
 });

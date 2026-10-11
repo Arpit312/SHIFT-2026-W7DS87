@@ -1,0 +1,8 @@
+set_10: Burnt / damaged electrical point
+Expected group decision: CORRECTION_REQUIRED
+Why: Visible burn marks or damaged socket/panel.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Wide shot of room.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  02_mount_point_closeup.jpg: Blackened socket / burn marks on wall plate.  -> CORRECTION_REQUIRED ['visible_electrical_hazard']
+  03_floor_and_approach.jpg: Broken or open distribution board cover with exposed parts.  -> CORRECTION_REQUIRED ['visible_electrical_hazard']

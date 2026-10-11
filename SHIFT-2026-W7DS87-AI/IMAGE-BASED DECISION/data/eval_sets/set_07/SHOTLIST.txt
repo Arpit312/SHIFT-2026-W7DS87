@@ -1,0 +1,8 @@
+set_07: Fuel cans and cardboard stacked
+Expected group decision: CORRECTION_REQUIRED
+Why: Combustibles stored right next to the install point.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Petrol cans and LPG cylinder beside the wall.  -> CORRECTION_REQUIRED ['combustibles_or_fire_hazard']
+  02_mount_point_closeup.jpg: Stacked cardboard/paper against the mount wall.  -> CORRECTION_REQUIRED ['combustibles_or_fire_hazard']
+  03_floor_and_approach.jpg: Floor and approach otherwise clear.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']

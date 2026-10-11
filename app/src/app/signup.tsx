@@ -1,110 +1,196 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Alert, ScrollView, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardTypeOptions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { UserPlus } from 'lucide-react-native';
+
+import { AppHeader, AppScreen, Card, Pill, PrimaryButton } from '../components/charge-ui';
+import { ChargeColors as C, ChargeSpacing as S } from '../constants/charge-theme';
 import { supabase } from '../lib/supabase';
 
-const C = {
-  background: '#0A0A0B',
-  surface: '#111113',
-  border: '#2A2A2F',
-  textPrimary: '#F4F1EA',
-  textMuted: '#A3A3AD',
-  brandOrange: '#FF7A1A',
+type SignupField = {
+  key: 'fullName' | 'email' | 'phone' | 'societyName' | 'flatNumber';
+  label: string;
+  placeholder: string;
+  keyboardType?: KeyboardTypeOptions;
 };
+
+const fields: SignupField[] = [
+  { key: 'fullName', label: 'Full name', placeholder: 'Arpit Pathak' },
+  { key: 'email', label: 'Email', placeholder: 'you@example.com', keyboardType: 'email-address' },
+  { key: 'phone', label: 'Phone', placeholder: '+91 9876543210', keyboardType: 'phone-pad' },
+  { key: 'societyName', label: 'Society', placeholder: 'Sunrise Apartments' },
+  { key: 'flatNumber', label: 'Flat / parking', placeholder: 'A-101 / P2-17' },
+] as const;
 
 export default function SignupPage() {
   const router = useRouter();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [societyName, setSocietyName] = useState('');
-  const [flatNumber, setFlatNumber] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    societyName: '',
+    flatNumber: '',
+    password: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
 
+  const updateField = (key: keyof typeof form, value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
   const onSignup = async () => {
-    if (!email || !password || !fullName || !phone || !societyName || !flatNumber) {
-      Alert.alert('Error', 'Please fill all fields.');
+    const missing = Object.values(form).some((value) => !value.trim());
+    if (missing) {
+      Alert.alert('Missing details', 'Saare fields fill karo taaki request packet ready ho sake.');
       return;
     }
+
     setIsLoading(true);
     const { error } = await supabase.auth.signUp({
-      email, password,
+      email: form.email.trim(),
+      password: form.password,
       options: {
-        data: { full_name: fullName, phone, role: 'EV_OWNER', society_name: societyName, flat_number: flatNumber },
+        data: {
+          full_name: form.fullName.trim(),
+          phone: form.phone.trim(),
+          role: 'EV_OWNER',
+          society_name: form.societyName.trim(),
+          flat_number: form.flatNumber.trim(),
+        },
       },
     });
     setIsLoading(false);
+
     if (error) {
       Alert.alert('Signup failed', error.message);
-    } else {
-      Alert.alert('Success', 'Account created successfully! Please log in.');
-      router.replace('/login');
+      return;
     }
+
+    Alert.alert('Account created', 'Ab login karke apna first charging request start karo.');
+    router.replace('/login');
   };
 
   return (
-    <SafeAreaView style={s.safe}>
-      <ScrollView contentContainerStyle={s.scrollContent}>
-        <View style={s.container}>
-          <View style={s.logoWrap}>
-            <Image source={require('../../assets/images/logo-themed.jpg')} style={{ width: 200, height: 100 }} resizeMode="contain" />
-          </View>
-
-          <View style={s.card}>
-            <Text style={s.title}>Create Account</Text>
-            <Text style={s.subtitle}>Sign up as an EV Owner to request charging</Text>
-
-            <Text style={s.label}>Full Name</Text>
-            <TextInput style={s.input} placeholder="John Doe" placeholderTextColor={C.textMuted} value={fullName} onChangeText={setFullName} />
-
-            <Text style={s.label}>Email</Text>
-            <TextInput style={s.input} placeholder="you@example.com" placeholderTextColor={C.textMuted} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-
-            <Text style={s.label}>Phone Number</Text>
-            <TextInput style={s.input} placeholder="+91 9876543210" placeholderTextColor={C.textMuted} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-
-            <Text style={s.label}>Society Name</Text>
-            <TextInput style={s.input} placeholder="Sunrise Apartments" placeholderTextColor={C.textMuted} value={societyName} onChangeText={setSocietyName} />
-
-            <Text style={s.label}>Flat Number</Text>
-            <TextInput style={s.input} placeholder="A-101" placeholderTextColor={C.textMuted} value={flatNumber} onChangeText={setFlatNumber} />
-
-            <Text style={s.label}>Password</Text>
-            <TextInput style={s.input} placeholder="••••••••" placeholderTextColor={C.textMuted} value={password} onChangeText={setPassword} secureTextEntry />
-
-            <TouchableOpacity onPress={onSignup} disabled={isLoading} style={[s.btn, isLoading && { opacity: 0.7 }]}>
-              {isLoading ? <ActivityIndicator color="white" /> : <Text style={s.btnText}>Create Account</Text>}
-            </TouchableOpacity>
-
-            <View style={s.footer}>
-              <Text style={{ color: C.textMuted }}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.push('/login')}>
-                <Text style={{ color: C.brandOrange, fontWeight: '600' }}>Sign in</Text>
-              </TouchableOpacity>
+    <AppScreen>
+      <SafeAreaView style={styles.safe}>
+        <AppHeader title="Create account" subtitle="Owner profile for NOC, safety and billing" showLogo />
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <Card style={styles.card}>
+            <View style={styles.topLine}>
+              <Pill label="EV Owner" tone="good" />
+              <Text style={styles.stepText}>1 of 1</Text>
             </View>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            {fields.map((field) => (
+              <View key={field.key} style={styles.field}>
+                <Text style={styles.label}>{field.label}</Text>
+                <TextInput
+                  autoCapitalize={field.key === 'email' ? 'none' : 'words'}
+                  keyboardType={field.keyboardType}
+                  onChangeText={(value) => updateField(field.key, value)}
+                  placeholder={field.placeholder}
+                  placeholderTextColor={C.textMuted}
+                  style={styles.input}
+                  value={form[field.key]}
+                />
+              </View>
+            ))}
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                onChangeText={(value) => updateField('password', value)}
+                placeholder="Create password"
+                placeholderTextColor={C.textMuted}
+                secureTextEntry
+                style={styles.input}
+                value={form.password}
+              />
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.82}
+              disabled={isLoading}
+              onPress={onSignup}
+              style={[styles.submit, isLoading && { opacity: 0.65 }]}>
+              {isLoading ? <ActivityIndicator color={C.white} /> : <UserPlus size={18} color={C.white} />}
+              <Text style={styles.submitText}>Create account</Text>
+            </TouchableOpacity>
+          </Card>
+
+          <PrimaryButton label="I already have an account" variant="secondary" onPress={() => router.push('/login')} />
+        </ScrollView>
+      </SafeAreaView>
+    </AppScreen>
   );
 }
 
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.background },
-  scrollContent: { padding: 16, alignItems: 'center', justifyContent: 'center', flexGrow: 1 },
-  container: { width: '100%', maxWidth: 400 },
-  logoWrap: { alignItems: 'center', marginBottom: 40 },
-  card: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 24 },
-  title: { color: C.textPrimary, fontSize: 24, fontWeight: '700', textAlign: 'center' },
-  subtitle: { color: C.textMuted, textAlign: 'center', marginTop: 4, marginBottom: 24 },
-  label: { color: C.textPrimary, fontSize: 14, fontWeight: '500', marginBottom: 6 },
-  input: {
-    backgroundColor: C.background, borderWidth: 1, borderColor: C.border, borderRadius: 8,
-    paddingHorizontal: 12, paddingVertical: 12, color: C.textPrimary, marginBottom: 16,
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
   },
-  btn: { backgroundColor: C.brandOrange, paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 8 },
-  btnText: { color: 'white', fontWeight: '600', fontSize: 16 },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  content: {
+    padding: S.lg,
+    paddingBottom: 36,
+    gap: S.lg,
+  },
+  card: {
+    gap: S.md,
+  },
+  topLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: S.xs,
+  },
+  stepText: {
+    color: C.textMuted,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  field: {
+    gap: S.xs,
+  },
+  label: {
+    color: C.text,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  input: {
+    minHeight: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.background,
+    color: C.text,
+    paddingHorizontal: S.md,
+    fontSize: 15,
+  },
+  submit: {
+    minHeight: 50,
+    borderRadius: 8,
+    backgroundColor: C.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: S.sm,
+    marginTop: S.sm,
+  },
+  submitText: {
+    color: C.white,
+    fontWeight: '900',
+    fontSize: 15,
+  },
 });
+

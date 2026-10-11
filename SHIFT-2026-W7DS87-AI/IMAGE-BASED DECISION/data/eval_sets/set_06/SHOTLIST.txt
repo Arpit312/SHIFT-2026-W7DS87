@@ -1,0 +1,8 @@
+set_06: Exposed and taped-over wires
+Expected group decision: CORRECTION_REQUIRED
+Why: Bare or taped-over wires visible near mount point.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Wide shot of wall; hazard is not obvious from here.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  02_mount_point_closeup.jpg: Loose bare wires / insulation-tape joints hanging from wall.  -> CORRECTION_REQUIRED ['exposed_or_damaged_wiring']
+  03_floor_and_approach.jpg: Frayed cable run along the floor edge.  -> CORRECTION_REQUIRED ['exposed_or_damaged_wiring']
