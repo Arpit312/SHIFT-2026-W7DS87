@@ -66,8 +66,8 @@ interface ScreeningResult {
 }
 
 // ── The screener calls the standalone Flask AI server ─────────────────────────
-// Run: cd proj && python app.py   (defaults to port 5000)
-const SCREENER_BASE = process.env.NEXT_PUBLIC_SCREENER_BASE_URL ?? 'http://localhost:5000';
+// Run: cd proj && PORT=8001 python app.py
+const SCREENER_BASE = process.env.NEXT_PUBLIC_SCREENER_BASE_URL ?? 'http://localhost:8001';
 
 async function callScreener(files: File[]): Promise<ScreeningResult> {
   const fd = new FormData();
