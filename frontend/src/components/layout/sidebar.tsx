@@ -18,7 +18,8 @@ import {
   LogOut,
   Settings,
   Users,
-  Inbox
+  Inbox,
+  ScanSearch,
 } from 'lucide-react';
 import type { Role } from '@/lib/constants';
 import { ROLES } from '@/lib/constants';
@@ -41,6 +42,7 @@ export function Sidebar({ role, className, onNavigate }: SidebarProps) {
           { href: '/dashboard/owner', label: 'Overview', icon: LayoutDashboard },
           { href: '/dashboard/owner/new-request', label: 'New Charging Request', icon: FilePlus },
           { href: '/dashboard/owner/tracker', label: 'Request Tracker', icon: MapPin },
+          { href: '/dashboard/owner/parking-screener', label: 'Parking Space Screener', icon: ScanSearch },
           { href: '/dashboard/owner/photo-check', label: 'Photo Check Report', icon: ShieldCheck },
           { href: '/dashboard/owner/evidence', label: 'Evidence Locker', icon: FolderOpen },
           { href: '/dashboard/owner/conditions', label: 'My Conditions', icon: CheckSquare },

@@ -21,9 +21,9 @@ class ChatView(APIView):
 
     def post(self, request):
         try:
-            message, history = validate_payload(request.data)
+            message, history, assessment_id = validate_payload(request.data)
             enforce_rate_limit(str(request.user.id))
-            result = call_gemini(message, history)
+            result = call_gemini(message, history, assessment_id, requesting_user=request.user)
         except ChatbotError as exc:
             return Response(
                 {'detail': exc.message, 'code': exc.code, 'error': True, 'message': exc.message},

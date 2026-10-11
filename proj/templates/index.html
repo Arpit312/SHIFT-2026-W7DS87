@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChargeNOC AI — EV Site Screener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161920;
+      --surface2: #1e222d;
+      --border: #2a2f3d;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59,130,246,0.18);
+      --text: #e8eaf0;
+      --muted: #7c8498;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --orange: #f97316;
+      --red: #ef4444;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #e8eaf0 0%, #7c8498 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .subtitle { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 720px;
+    }
+
+    /* ── Upload zone ── */
+    #drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      margin: 24px;
+    }
+    #drop-zone:hover, #drop-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    #file-input { display: none; }
+    .upload-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+    .upload-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .upload-sub { color: var(--muted); font-size: 13px; }
+    .browse-link { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+    /* ── Preview grid ── */
+    #preview-grid {
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 24px 8px;
+    }
+    .thumb {
+      width: 80px; height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+    #preview-info { padding: 0 24px 4px; color: var(--muted); font-size: 13px; }
+
+    /* ── Params row ── */
+    .params-row {
+      display: flex;
+      gap: 12px;
+      padding: 0 24px 20px;
+      flex-wrap: wrap;
+    }
+    .param-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 140px; }
+    label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+    input[type="number"], select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="number"]:focus, select:focus { border-color: var(--accent); }
+    select option { background: var(--surface2); }
+
+    /* ── Submit button ── */
+    .btn-row { padding: 0 24px 24px; }
+    #submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #submit-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    #submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    #result-section { display: none; width: 100%; max-width: 720px; margin-top: 28px; }
+
+    /* Status banner */
+    .status-banner {
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      border: 1px solid;
+    }
+    .status-banner.green  { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.35); }
+    .status-banner.yellow { background: rgba(234,179,8,0.1); border-color: rgba(234,179,8,0.35); }
+    .status-banner.orange { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.35); }
+    .status-banner.red    { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); }
+    .status-emoji { font-size: 36px; line-height: 1; flex-shrink: 0; }
+    .status-label { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .status-desc  { color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    /* Section heading */
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+    .section-head {
+      padding: 16px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .section-body { padding: 20px; }
+
+    /* Image result cards */
+    .img-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .img-card:last-child { margin-bottom: 0; }
+    .img-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+    .img-filename { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-all; }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge.green  { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .badge.yellow { background: rgba(234,179,8,0.15); color: #fbbf24; }
+    .badge.orange { background: rgba(249,115,22,0.15); color: #fb923c; }
+    .badge.red    { background: rgba(239,68,68,0.15); color: #f87171; }
+    .img-summary { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+    /* Hazard chips */
+    .hazard-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hazard-chip {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sev-high   { background: #ef4444; }
+    .sev-medium { background: #f97316; }
+    .sev-low    { background: #22c55e; }
+    .sev-unknown{ background: #6b7280; }
+
+    /* Hardware checklist */
+    .hw-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .hw-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .hw-check { color: var(--accent); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .hw-cat { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .hw-reason { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Limitations */
+    .limit-item { font-size: 12px; color: var(--muted); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+    .limit-item:last-child { border-bottom: none; }
+    .limit-item::before { content: "⚠"; flex-shrink: 0; }
+
+    /* Disclaimer */
+    .disclaimer { text-align: center; color: var(--muted); font-size: 12px; line-height: 1.6; margin-top: 24px; padding: 0 10px; }
+
+    /* Error */
+    .error-box {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.35);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      color: #f87171;
+      font-size: 14px;
+      display: none;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-pill">⚡ ChargeNOC AI</div>
+  <h1>EV Charging Site Screener</h1>
+  <p class="subtitle">Upload photos of your proposed EV charger installation area. Our AI will check for visible hazards and tell you if the site is ready.</p>
+</header>
+
+<!-- Upload card -->
+<div class="card">
+  <div id="drop-zone">
+    <span class="upload-icon">🖼️</span>
+    <div class="upload-title">Drag & drop your photos here</div>
+    <div class="upload-sub">or <span class="browse-link" onclick="document.getElementById('file-input').click()">browse files</span></div>
+    <div class="upload-sub" style="margin-top:8px">JPG · PNG · WEBP &nbsp;|&nbsp; Multiple images supported</div>
+    <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp" multiple />
+  </div>
+
+  <div id="preview-grid"></div>
+  <div id="preview-info"></div>
+
+  <div class="params-row" style="margin-top:12px">
+    <div class="param-group">
+      <label for="power-kw">Charger Power (kW) — optional</label>
+      <input type="number" id="power-kw" placeholder="e.g. 7.2" min="0.1" max="350" step="0.1" />
+    </div>
+    <div class="param-group">
+      <label for="charger-type">Charger Type — optional</label>
+      <select id="charger-type">
+        <option value="">Select type…</option>
+        <option value="AC">AC</option>
+        <option value="DC">DC</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="submit-btn" disabled>
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-text">Select images to screen</span>
+    </button>
+  </div>
+</div>
+
+<!-- Error -->
+<div id="error-box" class="error-box"></div>
+
+<!-- Results -->
+<div id="result-section">
+
+  <!-- Status banner -->
+  <div id="status-banner" class="status-banner">
+    <div id="status-emoji" class="status-emoji"></div>
+    <div>
+      <div id="status-label" class="status-label"></div>
+      <div id="status-desc" class="status-desc"></div>
+    </div>
+  </div>
+
+  <!-- Per-image results -->
+  <div class="section" id="img-section">
+    <div class="section-head">📸 Image-by-Image Analysis</div>
+    <div class="section-body" id="img-results"></div>
+  </div>
+
+  <!-- Hardware checklist -->
+  <div class="section" id="hw-section" style="display:none">
+    <div class="section-head">🔧 Preliminary Hardware Checklist</div>
+    <div class="section-body" id="hw-results"></div>
+  </div>
+
+  <!-- Limitations -->
+  <div class="section" id="lim-section" style="display:none">
+    <div class="section-head">⚠️ Limitations</div>
+    <div class="section-body" id="lim-results"></div>
+  </div>
+
+  <p class="disclaimer">
+    This AI screening is based solely on visible evidence in the provided photos.<br />
+    It is <strong>not a safety certification, electrical design, or installation approval</strong>.<br />
+    An electrician must verify all findings before any work begins.
+  </p>
+
+</div>
+
+<script>
+  const dropZone   = document.getElementById('drop-zone');
+  const fileInput  = document.getElementById('file-input');
+  const submitBtn  = document.getElementById('submit-btn');
+  const btnText    = document.getElementById('btn-text');
+  const spinner    = document.getElementById('spinner');
+  const previewGrid= document.getElementById('preview-grid');
+  const previewInfo= document.getElementById('preview-info');
+
+  let selectedFiles = [];
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    handleFiles(Array.from(e.dataTransfer.files));
+  });
+  dropZone.addEventListener('click', e => { if (e.target !== document.querySelector('.browse-link')) fileInput.click(); });
+  fileInput.addEventListener('change', () => handleFiles(Array.from(fileInput.files)));
+
+  function handleFiles(files) {
+    const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+    const valid = files.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+    if (!valid.length) return;
+    selectedFiles = valid;
+    renderPreviews();
+    submitBtn.disabled = false;
+    btnText.textContent = `Screen ${valid.length} image${valid.length > 1 ? 's' : ''}`;
+  }
+
+  function renderPreviews() {
+    previewGrid.style.display = 'flex';
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach(f => {
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(f);
+      img.alt = f.name;
+      previewGrid.appendChild(img);
+    });
+    previewInfo.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+  }
+
+  // Submit
+  submitBtn.addEventListener('click', async () => {
+    if (!selectedFiles.length) return;
+
+    // UI loading state
+    submitBtn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'Analysing…';
+    document.getElementById('error-box').style.display = 'none';
+    document.getElementById('result-section').style.display = 'none';
+
+    const fd = new FormData();
+    selectedFiles.forEach(f => fd.append('images', f));
+    const pw = document.getElementById('power-kw').value;
+    const ct = document.getElementById('charger-type').value;
+    if (pw) fd.append('charger_power_kw', pw);
+    if (ct) fd.append('charger_type', ct);
+
+    try {
+      const resp = await fetch('/screen', { method: 'POST', body: fd });
+      const data = await resp.json();
+
+      if (!resp.ok || data.error) {
+        showError(data.error || 'An unexpected error occurred.');
+        return;
+      }
+      renderResults(data);
+    } catch (e) {
+      showError('Network error: ' + e.message);
+    } finally {
+      spinner.style.display = 'none';
+      btnText.textContent = `Screen ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''}`;
+      submitBtn.disabled = false;
+    }
+  });
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = '⚠ ' + msg;
+    box.style.display = 'block';
+    document.getElementById('result-section').style.display = 'none';
+  }
+
+  const colorMap = { green: 'green', yellow: 'yellow', orange: 'orange', red: 'red' };
+
+  function renderResults(data) {
+    // Status banner
+    const banner = document.getElementById('status-banner');
+    banner.className = 'status-banner ' + (data.status_color || 'green');
+    document.getElementById('status-emoji').textContent = data.status_emoji;
+    document.getElementById('status-label').textContent = data.status_label;
+    document.getElementById('status-desc').textContent = data.status_description;
+
+    // Per-image results
+    const imgDiv = document.getElementById('img-results');
+    imgDiv.innerHTML = '';
+    data.images.forEach(img => {
+      const realHazards = img.hazards.filter(h => h.type !== 'none_visible');
+      const card = document.createElement('div');
+      card.className = 'img-card';
+      card.innerHTML = `
+        <div class="img-card-header">
+          <span class="img-filename">📷 ${escHtml(img.filename)}</span>
+          <span class="badge ${img.status_color}">${escHtml(img.status_label)}</span>
+        </div>
+        <p class="img-summary">${escHtml(img.summary)}</p>
+        ${realHazards.length ? `
+          <div class="hazard-list">
+            ${realHazards.map(h => `
+              <div class="hazard-chip">
+                <div class="sev-dot sev-${h.severity}"></div>
+                <span>${escHtml(h.label)}</span>
+                <span style="color:var(--muted)">${h.confidence}%</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+      imgDiv.appendChild(card);
+    });
+
+    // Hardware checklist
+    if (data.hardware_items && data.hardware_items.length) {
+      document.getElementById('hw-section').style.display = '';
+      const hwDiv = document.getElementById('hw-results');
+      hwDiv.innerHTML = data.hardware_items.map(i => `
+        <div class="hw-item">
+          <span class="hw-check">☑</span>
+          <div>
+            <div class="hw-cat">${escHtml(i.category)}</div>
+            <div class="hw-reason">${escHtml(i.reason)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Limitations
+    if (data.limitations && data.limitations.length) {
+      document.getElementById('lim-section').style.display = '';
+      document.getElementById('lim-results').innerHTML = data.limitations.map(l =>
+        `<div class="limit-item">${escHtml(l)}</div>`
+      ).join('');
+    }
+
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+</body>
+</html>

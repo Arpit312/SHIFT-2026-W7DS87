@@ -1,0 +1,8 @@
+set_05: Water seepage on wall
+Expected group decision: CORRECTION_REQUIRED
+Why: Wet wall and puddle at the mount point.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Dark damp patches running down the wall.  -> CORRECTION_REQUIRED ['water_or_dampness']
+  02_mount_point_closeup.jpg: Wall at mount point visibly wet / efflorescence.  -> CORRECTION_REQUIRED ['water_or_dampness']
+  03_floor_and_approach.jpg: Standing water on floor under mount point.  -> CORRECTION_REQUIRED ['water_or_dampness']

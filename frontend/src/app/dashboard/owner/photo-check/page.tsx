@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AskChargeSathiButton } from '@/components/chat/ask-chargesathi-button';
 import { api } from '@/lib/api-client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -324,6 +325,14 @@ function PhotoCheckPageInner() {
                       <p>Flagged for mandatory electrician inspection.</p>
                     </div>
                   )}
+                  
+                  {/* ── Ask ChargeSathi button ─────────────────────────── */}
+                  <div className="pt-3 border-t border-cn-border">
+                    <p className="text-xs text-text-muted mb-2">
+                      Questions about this report?
+                    </p>
+                    <AskChargeSathiButton assessmentId={latest.id} variant="secondary" size="sm" />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -346,42 +355,46 @@ function PhotoCheckPageInner() {
           </div>
 
           {/* ── Suggested conditions ────────────────────────────────────── */}
-          {latest.conditions && latest.conditions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Suggested Corrective Actions</CardTitle>
-                <CardDescription>
-                  These are preliminary suggestions. The RWA may specify different
-                  or additional requirements.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {latest.conditions.map((cond: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="p-4 border border-cn-border rounded-lg bg-surface"
-                    >
-                      <h4 className="font-semibold text-sm">{cond.title}</h4>
-                      <p className="text-sm text-text-muted mt-1">{cond.explanation}</p>
-                      <div className="mt-3 text-sm">
-                        <span className="font-medium text-brand-orange">
-                          Required action:{' '}
-                        </span>
-                        {cond.required_action}
-                      </div>
-                      {cond.required_evidence && (
-                        <div className="mt-2 text-xs text-text-muted">
-                          <span className="font-medium">Proof needed:</span>{' '}
-                          {cond.required_evidence}
+          {/* Backend field is suggested_conditions; conditions is a legacy alias */}
+          {(() => {
+            const conds = latest.suggested_conditions ?? (latest as any).conditions ?? [];
+            return conds.length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Suggested Corrective Actions</CardTitle>
+                  <CardDescription>
+                    These are preliminary suggestions. The RWA may specify different
+                    or additional requirements.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {conds.map((cond: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-4 border border-cn-border rounded-lg bg-surface"
+                      >
+                        <h4 className="font-semibold text-sm">{cond.title}</h4>
+                        <p className="text-sm text-text-muted mt-1">{cond.explanation}</p>
+                        <div className="mt-3 text-sm">
+                          <span className="font-medium text-brand-orange">
+                            Required action:{' '}
+                          </span>
+                          {cond.required_action}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                        {cond.required_evidence && (
+                          <div className="mt-2 text-xs text-text-muted">
+                            <span className="font-medium">Proof needed:</span>{' '}
+                            {cond.required_evidence}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null;
+          })()}
         </>
       )}
     </div>

@@ -1,0 +1,8 @@
+set_09: Cramped utility cupboard
+Expected group decision: CORRECTION_REQUIRED
+Why: No working clearance, cannot be reached for servicing.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Narrow cupboard crammed with items, mount point deep inside.  -> CORRECTION_REQUIRED ['cramped_or_inaccessible']
+  02_mount_point_closeup.jpg: Mount point blocked by shelves/boxes.  -> CORRECTION_REQUIRED ['cramped_or_inaccessible']
+  03_floor_and_approach.jpg: Door and corridor view.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']

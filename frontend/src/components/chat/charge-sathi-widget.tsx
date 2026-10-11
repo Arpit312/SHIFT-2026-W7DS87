@@ -40,9 +40,9 @@ const SEVERITY_CLASS: Record<'low' | 'medium' | 'high', string> = {
   high: 'bg-danger/15 text-danger',
 };
 
-export function ChargeSathiWidget() {
+export function ChargeSathiWidget({ assessmentId, initialOpen }: { assessmentId?: number | string; initialOpen?: boolean }) {
   const { profile, isLoading } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen ?? false);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([]);
@@ -53,6 +53,20 @@ export function ChargeSathiWidget() {
   const liveId = useId();
 
   const isOwner = profile?.role === ROLES.EV_OWNER;
+  const hasAssessmentContext = !!assessmentId;
+
+  // Assessment-specific starter questions shown on the report page
+  const ASSESSMENT_STARTERS = [
+    'Why was my parking space flagged?',
+    'What corrective actions should I take?',
+    'Which issues require an electrician?',
+    'What additional photo or information is needed?',
+  ];
+
+  const starters = hasAssessmentContext ? ASSESSMENT_STARTERS : CHARGESATHI_STARTERS;
+  const introText = hasAssessmentContext
+    ? 'I have the details of your parking photo screening. Ask me about the findings, what to fix, or what an electrician needs to check.'
+    : 'Ask about EV charging or the ChargeNOC request process. I do not see your own request, bills, or conditions.';
 
   const close = useCallback(() => {
     setOpen(false);
@@ -104,7 +118,11 @@ export function ChargeSathiWidget() {
     setMessages((prev) => [...prev, userMsg]);
     setBusy(true);
     try {
-      const result = await api.sendChat({ message: trimmed, history });
+      const result = await api.sendChat({ 
+        message: trimmed, 
+        history,
+        ...(assessmentId ? { assessment_id: assessmentId } : {}),
+      });
       setMessages((prev) => [
         ...prev,
         {
@@ -216,12 +234,11 @@ export function ChargeSathiWidget() {
             className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scrollbar-thin"
           >
             <p className="text-sm text-text-muted">
-              Ask about EV charging or the ChargeNOC request process. I do not see your own
-              request, bills, or conditions.
-            </p>
+                {introText}
+              </p>
             {messages.length === 0 ? (
               <div className="flex flex-wrap gap-2">
-                {CHARGESATHI_STARTERS.map((starter) => (
+                {starters.map((starter) => (
                   <button
                     key={starter}
                     type="button"

@@ -96,7 +96,12 @@ def validate_payload(data):
             )
         cleaned.append({'role': role, 'content': content.strip()})
 
-    return message.strip(), cleaned
+    # Optional assessment_id parameter
+    assessment_id = data.get('assessment_id')
+    if assessment_id is not None and not isinstance(assessment_id, (int, str)):
+        raise ChatbotError('assessment_id must be a number or string.', 'invalid_input', 400)
+
+    return message.strip(), cleaned, assessment_id
 
 
 def _wrap_user_text(text):
@@ -128,7 +133,78 @@ def _parse_reply(text):
     return body.strip(), severity
 
 
-def call_gemini(message, history):
+def _build_assessment_context(assessment_id, requesting_user=None):
+    """Fetch assessment data and build context string for system prompt.
+
+    Only injects context if the requesting user owns the assessment's request.
+    Returns None if assessment_id is falsy, the record is not found, or the
+    user is not authorised.  Never raises — failures are logged and suppressed.
+    """
+    if not assessment_id:
+        return None
+
+    try:
+        from assessments.models import Assessment
+        assessment = Assessment.objects.select_related('request__owner').get(pk=assessment_id)
+
+        # Authorization: only the request owner may receive assessment context.
+        if requesting_user is not None:
+            owner = getattr(assessment.request, 'owner', None)
+            if owner is None or str(owner.pk) != str(requesting_user.pk):
+                logger.warning(
+                    'User %s attempted to load assessment context for assessment %s owned by %s',
+                    requesting_user.pk, assessment_id, getattr(owner, 'pk', 'unknown'),
+                )
+                return None
+
+        # Build context summary
+        context_parts = [
+            "=== PHOTO CHECK SCREENING CONTEXT ===",
+            f"Overall verdict: {assessment.overall_verdict}",
+            f"Assessed at: {assessment.assessed_at.isoformat()}",
+        ]
+
+        if assessment.findings:
+            context_parts.append(f"\nFindings ({len(assessment.findings)}):")
+            for finding in assessment.findings:
+                severity = finding.get('severity', 'unknown')
+                title = finding.get('title', 'Untitled')
+                explanation = finding.get('explanation', '')
+                action = finding.get('recommended_action', '')
+                context_parts.append(f"- [{severity.upper()}] {title}: {explanation}")
+                if action:
+                    context_parts.append(f"  Recommended action: {action}")
+
+        if assessment.missing_information:
+            context_parts.append("\nMissing information:")
+            for item in assessment.missing_information:
+                context_parts.append(f"- {item}")
+
+        # Model field is suggested_conditions
+        conds = assessment.suggested_conditions or []
+        if conds:
+            context_parts.append(f"\nSuggested conditions ({len(conds)}):")
+            for cond in conds:
+                cond_title = cond.get('title', 'Untitled')
+                cond_action = cond.get('required_action', '')
+                context_parts.append(f"- {cond_title}: {cond_action}")
+
+        if assessment.requires_human_review:
+            context_parts.append("\n\u26a0 Flagged for mandatory electrician inspection")
+
+        if assessment.limitations:
+            context_parts.append("\nLimitations (first 3):")
+            for lim in assessment.limitations[:3]:
+                context_parts.append(f"- {lim}")
+
+        context_parts.append("=== END CONTEXT ===")
+        return "\n".join(context_parts)
+    except Exception as exc:
+        logger.warning("Could not fetch assessment %s: %s", assessment_id, exc)
+        return None
+
+
+def call_gemini(message, history, assessment_id=None, requesting_user=None):
     api_key = getattr(settings, 'GEMINI_API_KEY', '') or ''
     if not api_key or re.search(r'^(your_|paste|replace)', api_key, re.I):
         raise ChatbotError(
@@ -141,8 +217,20 @@ def call_gemini(message, history):
     timeout = int(getattr(settings, 'CHATBOT_TIMEOUT_SECONDS', 25))
     max_tokens = int(getattr(settings, 'CHATBOT_MAX_OUTPUT_TOKENS', 1024))
 
+    # Build system prompt with optional assessment context
+    system_prompt = SYSTEM_PROMPT
+    assessment_context = _build_assessment_context(assessment_id, requesting_user=requesting_user)
+    if assessment_context:
+        system_prompt = (
+            f"{SYSTEM_PROMPT}\n\n"
+            f"ADDITIONAL CONTEXT: The user is viewing their Photo Check Report. "
+            f"Use the screening results below to answer questions about their specific report. "
+            f"Do not invent findings or verdict details not shown here.\n\n"
+            f"{assessment_context}"
+        )
+
     payload = {
-        'systemInstruction': {'parts': [{'text': SYSTEM_PROMPT}]},
+        'systemInstruction': {'parts': [{'text': system_prompt}]},
         'contents': _gemini_contents(message, history),
         'generationConfig': {
             'temperature': 0.3,

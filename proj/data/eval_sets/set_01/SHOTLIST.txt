@@ -1,0 +1,8 @@
+set_01: Clean dry garage wall
+Expected group decision: CONTINUE_TO_ELECTRICIAN
+Why: Dry plain wall, empty floor, free walkway.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Whole garage bay, wall visible, nothing stored near it.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  02_mount_point_closeup.jpg: Plain dry wall at proposed mount height, no cracks/stains.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  03_floor_and_approach.jpg: Floor clear and dry between wall and parking spot.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']

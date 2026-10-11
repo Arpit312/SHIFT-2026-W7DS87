@@ -1,0 +1,8 @@
+set_08: Cable would cross walkway
+Expected group decision: CORRECTION_REQUIRED
+Why: Only possible cable route runs across a pedestrian path/steps.
+
+Put 3 real photos here with these exact names:
+  01_wide_area.jpg: Charger wall is across a shared footpath.  -> CORRECTION_REQUIRED ['pedestrian_or_cable_obstruction']
+  02_mount_point_closeup.jpg: Wall surface itself is fine.  -> CONTINUE_TO_ELECTRICIAN ['none_visible']
+  03_floor_and_approach.jpg: Stairs/walkway between wall and parking spot, people walking.  -> CORRECTION_REQUIRED ['pedestrian_or_cable_obstruction']

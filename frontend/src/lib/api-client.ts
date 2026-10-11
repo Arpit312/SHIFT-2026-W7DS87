@@ -223,7 +223,7 @@ class ApiClient {
   }
 
   /* ── ChargeSathi ───────────────────────────────────────── */
-  sendChat(data: { message: string; history: import('@/types').ChatHistoryTurn[] }) {
+  sendChat(data: { message: string; history: import('@/types').ChatHistoryTurn[]; assessment_id?: number | string }) {
     return this.post<import('@/types').ChatResponse>('/api/v1/chat/', data);
   }
 }
