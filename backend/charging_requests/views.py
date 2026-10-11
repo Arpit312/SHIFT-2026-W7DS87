@@ -10,14 +10,19 @@ Key changes in parking-analyzer branch:
   - evidence_list passes evidence_id so the adapter can populate source_photo_id.
 """
 
-from rest_framework import viewsets, decorators, response, status
+import logging
+import os
+import threading
+from urllib.parse import quote
+
+import requests
+from django.utils import timezone
+from rest_framework import decorators, response, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from charging_requests.serializers import ChargingRequestSerializer
-from charging_requests.models import ChargingRequest
 from assessments.models import Assessment
-import threading
-import logging
+from charging_requests.models import ChargingRequest
+from charging_requests.serializers import ChargingRequestSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -25,16 +30,48 @@ logger = logging.getLogger(__name__)
 def _get_evidence_url(evidence) -> str | None:
     """Return a downloadable URL for an Evidence record.
 
-    The Evidence model stores file_key (the Supabase storage path).
-    We construct the public URL.  If storage is not configured, returns None.
+    The Evidence model stores the bucket path as file_key. Prefer a signed URL
+    when a Supabase key is configured so private storage buckets still render
+    correctly. Fall back to the public object URL when a public bucket is used.
     """
-    import os
     bucket = os.getenv("SUPABASE_STORAGE_BUCKET", "chargenoc-evidence")
-    supabase_url = os.getenv("SUPABASE_URL", "")
+    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
     if not supabase_url or not evidence.file_key:
         return None
-    # Public URL pattern for Supabase Storage
-    return f"{supabase_url}/storage/v1/object/public/{bucket}/{evidence.file_key}"
+
+    file_key = evidence.file_key.lstrip("/")
+    encoded_key = quote(file_key, safe="/")
+    public_url = f"{supabase_url}/storage/v1/object/public/{bucket}/{encoded_key}"
+
+    token = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+    if token:
+        try:
+            response = requests.post(
+                f"{supabase_url}/storage/v1/object/sign/{bucket}/{encoded_key}",
+                json={"expiresIn": 3600},
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": token,
+                    "Content-Type": "application/json",
+                },
+                timeout=10,
+            )
+            if response.status_code == 200:
+                payload = response.json()
+                signed_url = (
+                    payload.get("signedURL")
+                    or payload.get("signed_url")
+                    or payload.get("url")
+                )
+                if signed_url:
+                    return signed_url
+        except requests.RequestException:
+            logger.warning(
+                "Falling back to public URL for evidence %s because a signed URL could not be generated.",
+                evidence.evidence_id,
+            )
+
+    return public_url
 
 
 def run_assessment_task(assessment_id: str) -> None:
@@ -109,6 +146,20 @@ class ChargingRequestViewSet(viewsets.ModelViewSet):
         elif user.role == "rwa_admin":
             return ChargingRequest.objects.filter(society=user.society)
         return ChargingRequest.objects.none()
+
+    @decorators.action(detail=True, methods=["post"], url_path="submit")
+    def submit_request(self, request, pk=None):
+        req = self.get_object()
+        if req.status not in ("draft", "submitted"):
+            return response.Response(
+                {"detail": "Request cannot be submitted in its current state."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        req.status = "submitted"
+        req.submitted_at = timezone.now()
+        req.save(update_fields=["status", "submitted_at", "updated_at"])
+        return response.Response({"detail": "Request submitted.", "status": req.status})
 
     @decorators.action(detail=True, methods=["post"], url_path="trigger-photo-check")
     def trigger_photo_check(self, request, pk=None):
