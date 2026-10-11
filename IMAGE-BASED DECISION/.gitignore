@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/images/
+data/eval_sets/*/*.jpg
+data/eval_sets/*/*.jpeg
+data/eval_sets/*/*.png
+data/eval_sets/*/*.webp
+.pytest_cache/
+.env
+**/.env

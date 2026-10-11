@@ -1,10 +1,11 @@
 """Flask web app for ChargeNOC AI — EV Charging Site Screener.
 Run: python app.py
-Then open http://localhost:5000 in your browser.
+Then open http://localhost:8000 in your browser.
 """
 import io
 import os
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -93,14 +94,28 @@ def screen():
         if not saved_paths:
             return jsonify({"error": "No valid images found in upload."}), 400
 
-        image_results = []
-        for filename, path in saved_paths:
-            try:
-                r = screen_area(path, _client=client, _model=model)
-                r["filename"] = filename
-                image_results.append(r)
-            except Exception as e:
-                return jsonify({"error": f"Error screening '{filename}': {e}"}), 500
+        image_results = [None] * len(saved_paths)
+        errors = {}
+
+        def _screen(idx_filename_path):
+            idx, filename, path = idx_filename_path
+            r = screen_area(path, _client=client, _model=model)
+            r["filename"] = filename
+            return idx, r
+
+        with ThreadPoolExecutor(max_workers=min(len(saved_paths), 4)) as pool:
+            futures = {pool.submit(_screen, (i, fn, p)): i for i, (fn, p) in enumerate(saved_paths)}
+            for fut in as_completed(futures):
+                try:
+                    idx, r = fut.result()
+                    image_results[idx] = r
+                except Exception as e:
+                    fn = saved_paths[futures[fut]][0]
+                    errors[fn] = str(e)
+
+        if errors:
+            first_fn, first_err = next(iter(errors.items()))
+            return jsonify({"error": f"Error screening '{first_fn}': {first_err}"}), 500
 
     # Aggregate group decision
     from chargenoc_ai.schemas import aggregate_group

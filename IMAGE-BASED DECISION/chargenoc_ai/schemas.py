@@ -72,6 +72,8 @@ def validate_result(data):
         status = "MANUAL_REVIEW"  # a hazard we cannot grade reliably
     elif "none_visible" in types and real:
         status = "MANUAL_REVIEW"  # contradictory: "nothing visible" together with a hazard
+    elif real and any(h["severity"] == "low" for h in real) and status == "CONTINUE_TO_ELECTRICIAN":
+        status = "MANUAL_REVIEW"  # real hazard observed, cannot blindly clear as ready
     elif status == "CORRECTION_REQUIRED":
         status = "MANUAL_REVIEW"  # model asked for correction but gave no material hazard
     elif status == "RETAKE_PHOTO":
