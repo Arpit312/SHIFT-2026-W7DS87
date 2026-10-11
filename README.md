@@ -1,129 +1,89 @@
 # ⚡ ChargeNOC
 
-**From a 6-month society argument to a 7-day, evidence-backed, verifiable EV charging approval.**
-
-ChargeNOC is a hardware-free platform that helps residents of Indian apartment societies request EV charging permission, and helps their Resident Welfare Association (RWA) decide using documented evidence instead of guesswork.
+ChargeNOC is a platform for evidence-backed EV charging approvals in apartment societies. It helps residents submit charging requests with supporting photos and documentation, while giving RWAs and electricians a clearer, reviewable workflow for approvals, conditions, and final NOC issuance.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Django](https://img.shields.io/badge/Django-5-092E20) ![DRF](https://img.shields.io/badge/DRF-REST-red) ![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20Auth-3ECF8E) ![License](https://img.shields.io/badge/License-Proprietary-lightgrey)
 
 ---
 
-## Table of Contents
+## Project at a glance
 
-1. [The Problem](#the-problem)
-2. [The Solution](#the-solution)
-3. [How It Works](#how-it-works)
-4. [Features](#features)
-5. [Architecture](#architecture)
-6. [Tech Stack](#tech-stack)
-7. [Quick Start](#quick-start)
-8. [Environment Variables](#environment-variables)
-9. [Demo Accounts](#demo-accounts)
-10. [Roles & Permissions](#roles--permissions)
-11. [Haan Packet (NOC Dossier)](#haan-packet-noc-dossier)
-12. [AI Integration Guide](#ai-integration-guide)
-13. [Design Principles](#design-principles)
-14. [Roadmap](#roadmap)
-15. [Troubleshooting](#troubleshooting)
-16. [License](#license)
+This repository contains the full project stack for the ChargeNOC workflow:
 
----
+- Frontend: Next.js app with role-based dashboards
+- Backend: Django + Django REST Framework API
+- Storage and auth: Supabase integration
+- AI screening: pluggable photo-check service with mock and real backends
+- Final document: Haan Packet / NOC dossier output
 
-## The Problem
+The goal is to reduce approval uncertainty and replace opinion-driven gating with evidence, audit history, and clear conditions.
 
-More than 85% of EV charging in India happens at home, overnight. But in apartments and gated societies, residents need an RWA No Objection Certificate (NOC) before installing a charger, and that is where things stall:
+## Why this exists
 
-- **Fear:** transformer overload, fire from poor wiring, water seepage in basements.
-- **No standard process:** neither residents nor committees know the DISCOM and CEA rules.
-- **Delay:** paper files and meeting-to-meeting deferrals turn one NOC into a **3 to 6 month** wait.
-- **No evidence:** decisions rest on opinion, not proof.
+Apartment societies often face a simple problem: EV owners need permission to install a charger, but decisions are usually slowed by incomplete evidence, unclear rules, and ad hoc review cycles. ChargeNOC is designed to make that process legible and auditable.
 
-## The Solution
+The workflow is intentionally structured as:
 
-ChargeNOC replaces opinion with an evidence pipeline:
+> Application → Photo evidence → AI screening → Human review → Conditional approval → Final verified NOC
 
-> **Application → Photo evidence → AI preliminary screening → Electrician inspection → Conditional approval → Verified NOC (Haan Packet)**
+This gives societies a path to approve with conditions, not just a binary yes/no.
 
-The RWA can approve with **conditions** (for example, "install a 30 mA RCCB") rather than a blunt yes/no, and the final output is a tamper-evident document that society records and DISCOM meter applications can rely on.
+## Core features
 
-## How It Works
+- EV owner request flow with supporting evidence
+- Role-based access for owners, RWAs, electricians, and admins
+- Photo upload and review process
+- AI preliminary screening via a swappable backend
+- Conditional approval flow
+- Append-only assessment and activity history
+- Haan Packet generation for final NOC documentation
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Owner as EV Owner
-    participant App as ChargeNOC
-    participant AI as AI Photo Check
-    actor RWA as RWA Admin
-    actor Elec as Electrician
+## Repository layout
 
-    Owner->>App: Submit request (vehicle, charger, slot)
-    Owner->>App: Upload parking and meter board photos
-    App->>AI: Request assessment
-    AI-->>App: Preliminary findings (versioned)
-    RWA->>App: Review evidence, assign electrician
-    Elec->>App: On-site inspection and sign-off
-    RWA->>App: Approve with conditions
-    Owner->>App: Upload proof of conditions
-    RWA->>App: Final approval
-    App-->>Owner: Haan Packet PDF (QR + SHA-256)
+```text
+.
+├── backend/         # Django app, API, models, migrations
+├── frontend/        # Next.js frontend and dashboards
+├── docs/            # Architecture and project analysis notes
+├── proj/            # Additional project-specific tooling / evaluation scripts
+├── chargesathi/     # Charging / AI-related utilities or service layer
+├── imageVerification/
+├── README.md
+└── .gitignore
 ```
 
-## Features
+## Architecture summary
 
-| Area | What you get |
-|------|--------------|
-| **Landing page** | Interactive Three.js hero with a clear explanation of the process |
-| **Authentication** | Email/password via Supabase Auth, JWT verified on the backend |
-| **Role-based dashboards** | Separate, guarded experiences for owners, RWA admins, electricians and super admins |
-| **Evidence capture** | Photo uploads to private Supabase Storage |
-| **AI Photo Check** | Preliminary screening through a clean, swappable service interface (mock in Phase 1) |
-| **Conditional approval** | Conditions with proof upload and verification |
-| **Haan Packet** | Verifiable NOC PDF generated with ReportLab |
-| **Auditability** | Append-only assessments, so history is never overwritten |
-
-## Architecture
-
-```
-┌──────────────┐     REST + JWT      ┌─────────────────┐     ┌──────────────────┐
-│  Frontend    │ ──────────────────▶ │  Backend        │ ──▶ │  Supabase        │
-│  Next.js 15  │                     │  Django + DRF   │     │  Postgres, Auth, │
-│  :3000       │ ◀────────────────── │  :8000          │ ◀── │  Storage         │
-└──────────────┘                     └───────┬─────────┘     └──────────────────┘
-                                             │
-                          PhotoCheckService  │  ReportLab
-                          (mock | http)      ▼
-                                     ┌───────────────┐
-                                     │ AI Photo Check│   Haan Packet PDF
-                                     │ (separate svc)│
-                                     └───────────────┘
+```text
+Frontend (Next.js)  <->  Django REST API  <->  Supabase / Postgres / Storage
+                              |
+                              +--> PhotoCheckService (mock or real)
+                              +--> PDF generation for approved packets
 ```
 
-**Monorepo layout**
+For deeper system details, see:
 
-| Directory | Stack | Purpose |
-|-----------|-------|---------|
-| `frontend/` | Next.js 15, TypeScript, Tailwind CSS | App Router SPA with role-based dashboards |
-| `backend/` | Django 5, Django REST Framework | API server, business logic, PDF generation |
-| `docs/` | Markdown | Architecture notes, API contracts, decision records |
+- [docs/architecture.md](docs/architecture.md)
+- [docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md)
+- [docs/PARKING_ANALYZER_REPORT.md](docs/PARKING_ANALYZER_REPORT.md)
 
-## Tech Stack
+## Tech stack
 
-- **Frontend:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Three.js
-- **Backend:** Django 5, Django REST Framework, Python 3.12+
-- **Data & Auth:** Supabase (Postgres, Auth, Storage)
-- **Documents:** ReportLab (pure Python, no system dependencies)
-- **AI:** pluggable `PhotoCheckService` (mock now, HTTP service next)
+- Frontend: Next.js 15, TypeScript, Tailwind CSS
+- Backend: Django 5, Django REST Framework
+- Auth/data: Supabase
+- PDF generation: ReportLab
+- AI screening: pluggable service interface (`PHOTO_CHECK_BACKEND`)
 
-## Quick Start
+## Local development setup
 
 ### Prerequisites
 
-- **Node.js** >= 18
-- **Python** 3.12+
-- A **Supabase** project (the free tier is enough for development)
+- Node.js 18+
+- Python 3.12+
+- A Supabase project for auth/storage if you are running the full stack locally
 
-### 1. Install
+### 1) Install dependencies
 
 ```bash
 # Frontend
@@ -142,24 +102,31 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure
+### 2) Configure environment
+
+Copy the sample environment files and fill in your values:
 
 ```bash
-cp frontend/.env.example frontend/.env.local
 cp backend/.env.example backend/.env
 ```
 
-Fill in the values (see [Environment Variables](#environment-variables)).
+For local frontend config, create the file if your setup requires it:
 
-### 3. Set up the database
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+### 3) Set up the database
 
 ```bash
 cd backend
 python manage.py migrate
-python manage.py seed_demo   # demo society, users and sample data
+python manage.py createsuperuser
 ```
 
-### 4. Run
+If your local branch includes additional demo data scripts, run them explicitly; otherwise, create the needed users and roles within the app or Django admin.
+
+### 4) Run the services
 
 ```bash
 # Terminal 1: backend
@@ -171,133 +138,111 @@ cd frontend
 npm run dev
 ```
 
+### Default local URLs
+
 | Service | URL |
-|---------|-----|
-| Web app | http://localhost:3000 |
+|---------|------|
+| Frontend | http://localhost:3000 |
 | API | http://localhost:8000/api/v1/ |
 
-## Environment Variables
+## Environment variables
 
-### Frontend (`frontend/.env.local`)
+The project currently uses a Django env-based setup. The concrete keys in use can be seen in [backend/.env.example](backend/.env.example).
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous (public) key |
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL (default `http://localhost:8000`) |
+### Backend
 
-### Backend (`backend/.env`)
+Key settings include:
 
-| Variable | Description |
-|----------|-------------|
-| `DJANGO_SECRET_KEY` | Django secret key |
-| `DJANGO_DEBUG` | `True` for development only |
-| `DJANGO_ALLOWED_HOSTS` | Comma-separated allowed hosts |
-| `DATABASE_URL` | Supabase Postgres connection string |
-| `CORS_ALLOWED_ORIGINS` | Comma-separated CORS origins |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (**server only**) |
-| `SUPABASE_JWT_SECRET` | Secret for JWT verification |
-| `SUPABASE_STORAGE_BUCKET` | Private storage bucket name |
-| `PHOTO_CHECK_BACKEND` | `mock` or `http` |
-| `DEMO_OWNER_PASSWORD` | Demo EV owner password |
-| `DEMO_RWA_PASSWORD` | Demo RWA admin password |
-| `DEMO_ELECTRICIAN_PASSWORD` | Demo electrician password |
-| `DEMO_ADMIN_PASSWORD` | Demo super admin password |
+- `SECRET_KEY`
+- `DEBUG`
+- `PHOTO_CHECK_BACKEND` (`mock` or `real` depending on the configured service)
+- `GEMINI_API_KEY`
+- `GEMINI_MODELS`
+- `GEMINI_TIMEOUT_SECONDS`
+- `CHATBOT_MODEL`
+- other backend-specific service settings
 
-> 🔐 **Security:** never commit `.env` files. The service role key and JWT secret must never reach the frontend.
+> Security note: never commit `.env` files to the repo, and keep API keys and service secrets server-side only.
 
-## Demo Accounts
+### Frontend
 
-Available after `seed_demo`. Passwords come from the environment variables above.
+Typical frontend config includes values such as:
 
-| Role | Email |
-|------|-------|
-| EV Owner | `owner@chargenoc.demo` |
-| RWA Admin | `rwa@chargenoc.demo` |
-| Electrician | `electrician@chargenoc.demo` |
-| Super Admin | `admin@chargenoc.demo` |
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_API_BASE_URL`
 
-**Suggested demo walkthrough:** log in as the owner, open a request and upload photos, review the AI assessment, then switch to RWA admin and electrician views, and finish by downloading the Haan Packet.
+## Role model and access
 
-## Roles & Permissions
+The app is designed around clear ownership boundaries:
 
 | Role | Access |
 |------|--------|
-| `ev_owner` | Own requests, evidence, conditions, slots, bills, packets |
-| `rwa_admin` | Society-scoped requests and decisions |
-| `electrician` | Assigned inspections only |
-| `super_admin` | Read-only overview of all data (Phase 1) |
+| `ev_owner` | Own requests, evidence, conditions, and packet-related actions |
+| `rwa_admin` | Society-scoped review and approval workflows |
+| `electrician` | Assigned inspections and verification actions |
+| `super_admin` | Broad read-only oversight of the platform |
 
-Access is enforced on the backend per request, not just hidden in the UI.
+Role enforcement is handled in the backend rather than only in the UI.
 
-## Haan Packet (NOC Dossier)
+## AI integration notes
 
-The Haan Packet is the final deliverable of an approved request, generated with ReportLab. It is designed to contain:
+The AI screening layer is intentionally modular. The backend exposes a `PhotoCheckService` abstraction and toggles the implementation via `PHOTO_CHECK_BACKEND`.
 
-- Society NOC with a reference number
-- Resident and request details
+Current behavior is typically mock-based for local testing, while real integrations can be swapped in without changing the surrounding request flow.
+
+Key principles:
+
+1. AI output is meant for preliminary screening, not final electrical certification.
+2. Null confidence should never be treated as high confidence.
+3. Human review remains required before final approval.
+4. Assessments are versioned and append-only instead of overwritten.
+
+See [docs/architecture.md](docs/architecture.md) and [docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md) for the operational context.
+
+## Haan Packet (NOC dossier)
+
+The Haan Packet is the final, reviewable output of an approved request. It is intended to contain:
+
+- Request and resident details
+- Society approval information
 - Inspection sign-off and conditions
-- A **SHA-256 verification hash** and **QR code** so the document's authenticity can be checked
+- Verification metadata such as hashes or QR-backed authenticity markers
 
-## AI Integration Guide
+This is designed to create a stronger paper trail than a plain approval note.
 
-The AI Photo Check service is built by a separate teammate. Phase 1 ships with a `MockPhotoCheckService` that returns deterministic demo assessments.
+## Current project status
 
-### Integration point
-
-- **Backend:** `assessments/services.py` defines a `PhotoCheckService` protocol with an `assess(request_id)` method.
-- **Selection:** set `PHOTO_CHECK_BACKEND=mock` or `PHOTO_CHECK_BACKEND=http`.
-- **Contract:** see `docs/api-contract.md` for the full `Assessment` type.
-
-### Key rules
-
-1. AI output is **preliminary screening, not electrical certification**.
-2. **Null confidence is never treated as high confidence.**
-3. The UI **never auto-approves** based on AI confidence.
-4. Every assessment is stored as a **new version** (append-only).
-
-## Design Principles
-
-- **Evidence over opinion:** every decision is backed by photos, inspection data or proof.
-- **Human in the loop:** AI screens, a licensed electrician verifies, the RWA decides.
-- **Conditions, not just rejections:** give the committee a path to "yes, if".
-- **Hardware-free:** no smart chargers or on-site devices required.
-- **Auditable by default:** history is appended, never overwritten.
+This codebase is actively being developed and some parts are still proof-of-concept or intentionally mock-driven. The project is structurally complete enough to run locally, but you should expect configuration and workflow details to evolve as the platform matures.
 
 ## Roadmap
 
-**Phase 1 (current)**
+### Completed direction
 
-- [x] Landing page with Three.js hero
-- [x] Email/password authentication (Supabase)
-- [x] Role-based routing and guards
-- [x] Full EV Owner dashboard
-- [x] RWA Admin inbox (read-only)
-- [x] Electrician inspections list (read-only)
-- [x] Super Admin overview (read-only)
-- [x] Mock AI Photo Check service
-- [x] Haan Packet PDF generation
+- EV request and evidence workflow
+- Role-based access patterns
+- Mock AI screening path
+- Packet generation/integration work
+- Django + Next.js project structure
 
-**Future phases**
+### Planned work
 
-- [ ] Real AI service (`PHOTO_CHECK_BACKEND=http`)
-- [ ] RWA decision actions and electrician sign-off from the UI
-- [ ] Scheduling
-- [ ] Billing and payments
-- [ ] DISCOM meter application integration
-- [ ] Sub-meter IoT billing
-- [ ] Multi-lingual assistant (Hindi, Tamil, Kannada, Marathi)
+- Real AI service integration
+- More complete RWA decision workflow
+- Electrician sign-off steps in the UI
+- Scheduling and billing modules
+- DISCOM / formal compliance integrations
+- Expanded data validation and production hardening
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| `CORS` errors in the browser | Add the frontend origin to `CORS_ALLOWED_ORIGINS` and restart the backend |
-| `401 Unauthorized` from the API | Check `SUPABASE_JWT_SECRET` matches your Supabase project |
-| Demo login fails | Re-run `seed_demo` and confirm the `DEMO_*_PASSWORD` values are set |
-| Frontend cannot reach the API | Verify `NEXT_PUBLIC_API_BASE_URL` and that the backend is running on port 8000 |
-| `pip install` fails | Confirm Python 3.12+ and that the virtual environment is activated |
+| Django app fails to start | Confirm your virtual environment is active and requirements are installed |
+| Frontend cannot reach the API | Verify `NEXT_PUBLIC_API_BASE_URL` and that Django is running on port 8000 |
+| CORS issues | Add the frontend origin to the allowed CORS configuration in the backend |
+| AI or photo-check calls fail | Check the configured `PHOTO_CHECK_BACKEND` and required keys in the backend env file |
+| `pip install` fails | Confirm Python 3.12+ and that the correct environment is active |
 
 ## License
 
