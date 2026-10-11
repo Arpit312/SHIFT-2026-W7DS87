@@ -1,8 +1,10 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from evidence.views import *
+
+from evidence.views import EvidenceViewSet
 
 router = DefaultRouter()
+router.register(r'', EvidenceViewSet, basename='evidence')
 
 urlpatterns = [
     path('', include(router.urls)),
